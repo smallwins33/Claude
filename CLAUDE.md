@@ -8,6 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - 不可執行 `pip` / `pip3 install`（會寫入 `/Users/mi/Library`）
 - 不可讀寫 `/Users/mi/Library` 或任何非 `/Users/mi/Developer` 的目錄
+- **不可使用 `/tmp/` 作為輸出路徑**，一律改用 `/Users/mi/Developer/Claude/output/`
 - 套件問題請告知使用者自行處理，不代為執行
 - 此限制適用於所有對話，無例外
 

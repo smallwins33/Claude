@@ -227,8 +227,10 @@ def main():
             sys.exit(1)
         since_date = date.fromisoformat(args.since)
 
-    default_out = ("/tmp/systeme_new_leads.json" if args.mode == "new"
-                   else "/tmp/systeme_leads.json")
+    out_dir = os.path.join(os.path.dirname(__file__), "..", "output")
+    os.makedirs(out_dir, exist_ok=True)
+    default_out = (os.path.join(out_dir, "systeme_new_leads.json") if args.mode == "new"
+                   else os.path.join(out_dir, "systeme_leads.json"))
     output_path = args.out or default_out
 
     session_id = init_session()

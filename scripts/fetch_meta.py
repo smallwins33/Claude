@@ -7,9 +7,9 @@ fetch_meta.py
   python scripts/fetch_meta.py --since 2026-03-31 --until 2026-04-06  # 自訂日期
 
 輸出（預設路徑）：
-  /tmp/meta_full.csv
-  /tmp/meta_7d.csv
-  /tmp/meta_4d.csv
+  output/meta_full.csv
+  output/meta_7d.csv
+  output/meta_4d.csv
 """
 
 import warnings; warnings.filterwarnings("ignore")
@@ -118,12 +118,15 @@ def save_csv(rows: list, path: str):
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
 
+OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "output")
+os.makedirs(OUT_DIR, exist_ok=True)
+
 p = argparse.ArgumentParser()
 p.add_argument("--since",        help="完整期間起始日 YYYY-MM-DD")
 p.add_argument("--until",        help="完整期間結束日 YYYY-MM-DD")
-p.add_argument("--out-full",     default="/tmp/meta_full.csv")
-p.add_argument("--out-7d",       default="/tmp/meta_7d.csv")
-p.add_argument("--out-4d",       default="/tmp/meta_4d.csv")
+p.add_argument("--out-full",     default=os.path.join(OUT_DIR, "meta_full.csv"))
+p.add_argument("--out-7d",       default=os.path.join(OUT_DIR, "meta_7d.csv"))
+p.add_argument("--out-4d",       default=os.path.join(OUT_DIR, "meta_4d.csv"))
 args = p.parse_args()
 
 today = date.today()
