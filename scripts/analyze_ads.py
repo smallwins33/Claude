@@ -6,6 +6,7 @@ BRAND 廣告效益分析腳本
                         --output 輸出.xlsx [--period "2026年3月W13週五"]
                         [--cpl-threshold 4.07]  # 可選，不填則自動計算中位數
 """
+import warnings; warnings.filterwarnings("ignore")
 import csv, sys, argparse, json
 from collections import defaultdict
 from openpyxl import Workbook

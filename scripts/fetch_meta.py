@@ -12,6 +12,7 @@ fetch_meta.py
   /tmp/meta_4d.csv
 """
 
+import warnings; warnings.filterwarnings("ignore")
 import csv, json, os, sys, argparse
 from datetime import date, timedelta
 import requests

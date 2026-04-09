@@ -11,6 +11,9 @@ Layer 2（轉換追蹤，本期前的歷史名單）：
   → 全量或依 tag 篩選
 """
 
+import warnings
+warnings.filterwarnings("ignore")
+
 import csv
 import json
 import os
@@ -112,12 +115,12 @@ def fetch_contacts(session_id: str, mode: str = "full",
     req_id = 10
 
     while True:
-        params: dict = {"limit": 100, "order": "asc"}
+        # mode=new 用 order:desc（最新→最舊），遇舊日期手動停止
+        # mode=full 用 order:asc
+        order = "desc" if mode == "new" else "asc"
+        params: dict = {"limit": 100, "order": order}
         if starting_after:
             params["startingAfter"] = starting_after
-        if mode == "new" and since_date:
-            # 伺服器端篩選：只回傳 registeredAfter 的聯絡人
-            params["registeredAfter"] = str(since_date)
         if tags:
             params["tags"] = tags
 
@@ -137,8 +140,31 @@ def fetch_contacts(session_id: str, mode: str = "full",
         for item in items:
             seen_ids.add(item["id"])
 
-        contacts.extend(items)
-        print(f"  已抓取 {len(contacts)} 筆...", end="\r")
+        if mode == "new" and since_date:
+            # 手動過濾：丟掉早於 since_date 的記錄，遇到就停止
+            new_items = []
+            stop = False
+            for item in items:
+                reg = item.get("registeredAt") or item.get("createdAt", "")
+                if reg:
+                    try:
+                        from datetime import datetime
+                        item_date = datetime.fromisoformat(
+                            reg.replace("Z", "+00:00")).date()
+                        if item_date < since_date:
+                            stop = True
+                            break
+                    except Exception:
+                        pass
+                new_items.append(item)
+            contacts.extend(new_items)
+            print(f"  已抓取 {len(contacts)} 筆（本期）...", end="\r")
+            if stop:
+                print(f"\n  遇到 {since_date} 前的記錄，停止。")
+                break
+        else:
+            contacts.extend(items)
+            print(f"  已抓取 {len(contacts)} 筆...", end="\r")
 
         if len(items) < 100:
             break

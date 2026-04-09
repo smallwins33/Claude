@@ -68,8 +68,8 @@ p.add_argument("--skip-layer2-fetch", action="store_true",
                help="跳過 Systeme 全量抓取（使用 /tmp/systeme_leads.csv 快取）")
 p.add_argument("--skip-meta-fetch", action="store_true",
                help="跳過 Meta 抓取（使用快取的 /tmp/meta_*.csv）")
-p.add_argument("--layer2-tags", default="1146739",
-               help="Layer 2 全量抓取的 tag ID 篩選（預設 1146739=Meta）")
+p.add_argument("--layer2-since", default="2026-03-01",
+               help="Layer 2 歷史名單起始日（預設 2026-03-01）")
 p.add_argument("--cpl-threshold", type=float, default=None)
 args = p.parse_args()
 
@@ -138,10 +138,10 @@ elif cache_is_fresh(LAYER2_CACHE, CACHE_MAX_AGE_HOURS):
     print(f"⏭  快取仍有效（{mtime:%Y-%m-%d %H:%M}），跳過全量抓取。")
 else:
     layer2_cmd = [sys.executable, os.path.join(SCRIPTS, "fetch_systeme.py"),
-                  "--mode", "full"]
-    if args.layer2_tags:
-        layer2_cmd += ["--tags", args.layer2_tags]
-    rc = run(layer2_cmd, f"Systeme 全量名單抓取（tags={args.layer2_tags}）")
+                  "--mode", "new",
+                  "--since", args.layer2_since,
+                  "--out", "/tmp/systeme_leads.json"]
+    rc = run(layer2_cmd, f"Systeme 歷史名單抓取（since={args.layer2_since}）")
     if rc != 0:
         errors.append("Systeme Layer 2 全量 fetch 失敗")
 
