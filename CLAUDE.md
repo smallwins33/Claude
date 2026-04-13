@@ -35,6 +35,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **永遠不呼叫 notion-fetch**，用 notion-query-data-sources 拿 email、狀態、諮詢時間三欄即可
 - 比對進諮詢：email 對上即可；比對成交：才看 狀態 欄位
 
+## 虛擬員工角色切換系統
+
+使用者（米米）可以在對話中指定角色與品牌，格式為：
+
+> 「切換到 [角色] × [品牌]」或「你現在是 [角色]，幫我處理 [品牌] 的事」
+
+**角色清單**（對應 memory/ 下的角色檔案）：
+- 廣告策略師 → `role_ads_strategist.md`
+- 社群行銷 → `role_social.md`
+- 品牌策略師 → `role_brand_strategist.md`
+- 個人助理 → `role_personal_assistant.md`
+- PM → `role_pm.md`
+- 心理狀態支持 → `role_mental_support.md`
+
+**品牌清單**（對應 memory/ 下的品牌檔案）：
+- 數位槓桿 / DigiLev → `brand_digilev.md`
+- 領先時代 / LTA → `brand_lta.md`
+- 小勝利 / Small Wins → `brand_smallwins.md`
+
+**切換規則**：
+1. 收到切換指令時，讀取對應的角色檔 + 品牌檔
+2. 以該角色的思維框架與輸出格式回應
+3. 角色與品牌可以獨立指定，也可以組合（如「廣告策略師 × 領先時代」）
+4. 沒有指定品牌時，依上下文推斷或詢問
+
 ## 語言設定
 
 與使用者溝通時，請一律使用**繁體中文**回應。程式碼、指令、變數名稱等技術內容維持英文，但說明文字請使用繁體中文。
