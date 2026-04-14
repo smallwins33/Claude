@@ -41,7 +41,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 > 「切換到 [角色] × [品牌]」或「你現在是 [角色]，幫我處理 [品牌] 的事」
 
-**角色清單**（對應 memory/ 下的角色檔案）：
+**角色清單**（對應 memory/ 下的角色檔案）：ㄋ
 - 廣告策略師 → `role_ads_strategist.md`
 - 社群行銷 → `role_social.md`
 - 品牌策略師 → `role_brand_strategist.md`

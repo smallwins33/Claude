@@ -11,6 +11,12 @@
   header { background: #1a1a1a; color: #fff; padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; }
   header h1 { font-size: 17px; font-weight: 600; }
   header span { font-size: 12px; color: #777; }
+  .export-btn { padding: 7px 16px; border-radius: 8px; border: 1.5px solid #444; background: transparent; color: #ccc; font-size: 12px; cursor: pointer; transition: all 0.15s; }
+  .export-btn:hover { background: #333; color: #fff; border-color: #666; }
+  .save-toast { position: fixed; bottom: 24px; right: 24px; background: #1a1a1a; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 12px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
+  .save-toast.show { opacity: 1; }
+  .editable-text { outline: none; border-radius: 4px; padding: 2px 4px; margin: -2px -4px; transition: background 0.15s; cursor: text; }
+  .editable-text:focus { background: #fff8e6; }
 
   .top-bar { background: #fff; border-bottom: 1.5px solid #ececec; padding: 0 32px; display: flex; align-items: center; gap: 0; }
   .month-tab { padding: 14px 20px; font-size: 13px; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; color: #aaa; transition: all 0.15s; }
@@ -72,8 +78,12 @@
 
 <header>
   <h1>社群月曆</h1>
-  <span>小勝利 &amp; 個人品牌</span>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span>小勝利 &amp; 個人品牌</span>
+    <button class="export-btn" onclick="exportHTML()">匯出更新版</button>
+  </div>
 </header>
+<div class="save-toast" id="toast">已儲存</div>
 
 <div class="top-bar">
   <div class="month-tab active" onclick="switchMonth('april')">四月</div>
@@ -203,74 +213,74 @@ const data = {
   },
   mi: {
     april: {
-      14: { threads: { text: '「大部分人的 Notion 沒有「入口」——有很多頁面，但沒有一個讓你知道今天要做什麼的地方」', type: '系統思維' } },
+      14: { threads: { text: '「幫別人設計系統的時候，其實也在重新認識自己是怎麼思考的——每個客戶都讓我發現一個自己沒想過的使用情境」', type: '輕觀察' } },
       15: { threads: { text: '「Notion 系統設計，我第一個問的問題永遠不是「你想放什麼」——是「三個月後你還會不會開這個頁面」」', type: '系統思維' },
             ig: { text: 'Notion 大使是什麼？我怎麼成為台灣官方大使的', format: '輪播' } },
-      16: { threads: { text: '「Relation 用對的那一刻：你會發現自己一直在手動做的事，其實 Notion 可以自動幫你連起來」', type: '進階觀點' } },
+      16: { threads: { text: '「今天把設計了兩週的系統全部推翻——因為昨晚想通了一件事。刪掉的東西，比留下的更讓我有成就感。」', type: '輕觀察' } },
       17: { threads: { text: '「設計好的 Notion 系統有一個標誌：你打開它，不需要想「我要去哪裡」」', type: '系統思維' },
             ig: { text: '大部分人設計 Notion 系統的順序是錯的——應該先想「誰用」再想「放什麼」', format: '輪播' } },
-      18: { threads: { text: '「企業導入 Notion 失敗，幾乎都是同一個原因：把它當資料夾用，沒有當系統設計」', type: '企業應用觀點' } },
-      19: { threads: { text: '「我的 Formula 越寫越短——因為我終於知道什麼問題要用系統設計解決，不是靠公式硬撐」', type: '進階觀點' },
+      18: { threads: { text: '「有時候最好的系統設計建議，是告訴客戶「這個不需要放進 Notion」——知道什麼不做，比知道怎麼做更難」', type: '輕觀察' } },
+      19: { threads: { text: '「我的 Formula 越寫越短——因為我終於知道什麼問題要用系統設計解決，不是靠公式硬撐」', type: '系統思維' },
             ig: { text: 'Notion Relation + Rollup 組合：我如何用它追蹤跨品牌的任務進度', format: '輪播' } },
       20: { threads: { text: '「身為 Notion 大使，我最常被問的不是功能，是「這樣設計對嗎？」——我的答案永遠是：對誰？」', type: '大使視角' } },
-      21: { threads: { text: '「一個設計好的系統，維護時間應該遠少於它幫你省下來的時間——這是我用來判斷系統成不成功的標準」', type: '系統思維' } },
-      22: { threads: { text: '「Notion 的 Sub-item 用錯了會讓系統失控，用對了會讓你的 Database 層次感瞬間提升」', type: '進階觀點' },
+      21: { threads: { text: '「Notion 系統設計師的職業傷害：看到任何工作流程，都會忍不住想怎麼拆解它」', type: '輕觀察' } },
+      22: { threads: { text: '「Notion 的 Sub-item 用錯了會讓系統失控，用對了會讓你的 Database 層次感瞬間提升」', type: '系統思維' },
             ig: { text: '幫企業導入 Notion，第一個要解決的不是「功能問題」，是「習慣問題」', format: '輪播' } },
-      23: { threads: { text: '「你的 Notion 有沒有「死頁面」？建了之後從來沒再開的——那通常是系統設計問題，不是你懶」', type: '系統思維共鳴' } },
-      24: { threads: { text: '「Rollup 是 Notion 裡讓我最興奮的功能——你可以跨 Database 彙總資料，讓資訊自己流動」', type: '進階觀點' },
+      23: { threads: { text: '「交付完一套系統，客戶說「太複雜了學不會」——那不是客戶的問題，是我沒設計好。這是設計師要承擔的。」', type: '輕觀察' } },
+      24: { threads: { text: '「Rollup 是 Notion 裡讓我最興奮的功能——你可以跨 Database 彙總資料，讓資訊自己流動」', type: '系統思維' },
             ig: { text: '用 Button 自動化我的每週 Review 流程——點一下，七件事自動完成', format: '輪播' } },
-      25: { threads: { text: '「我每次重新設計一套系統，都會刪掉上一版 30% 的東西——那些東西當時覺得需要，後來發現是焦慮」', type: '系統思維' } },
-      26: { threads: { text: '「Database View 不只是視覺呈現——不同的 View 代表不同的思考角度，設計得好可以讓同一份資料服務不同情境」', type: '進階觀點' },
+      25: { threads: { text: '「你覺得 Notion 最值得深入學的進階功能是哪一個？」', type: '互動' } },
+      26: { threads: { text: '「週六還在想系統架構的，說聲我在」', type: '輕觀察互動' },
             ig: { text: '系統設計最常見的錯誤：把「記錄」和「管理」放在同一個 Database', format: '輪播' } },
       27: { threads: { text: '「系統設計有一個反直覺的真理：越想把所有情況都考慮到，系統越容易死掉」', type: '系統思維' } },
-      28: { threads: { text: '「一套 Notion 系統設計完，我會問自己：一個沒看過這套系統的人，能不能 5 分鐘內知道怎麼用？」', type: '系統思維' } },
-      29: { threads: { text: '「Linked Database 是 Notion 最被低估的功能之一——同一份資料，在不同脈絡下呈現不同的樣貌」', type: '進階觀點' },
+      28: { threads: { text: '「好的 Notion 系統設計完，我會靜靜看著它幾分鐘——有一種把複雜的事情理清楚了的滿足感」', type: '輕觀察' } },
+      29: { threads: { text: '「Linked Database 是 Notion 最被低估的功能之一——同一份資料，在不同脈絡下呈現不同的樣貌」', type: '系統思維' },
             ig: { text: 'Linked Database 實戰：同一份資料，在不同頁面呈現不同樣貌', format: '輪播' } },
-      30: { threads: { text: '「Notion 大使讓我最意外的一件事：官方比我想像中更在乎用戶的實際使用流程，不只是功能」', type: '大使視角' } }
+      30: { threads: { text: '「四月快結束了。你這個月有沒有設計或改良過一個讓自己滿意的 Notion 頁面？」', type: '互動' } }
     },
     may: {
-      1:  { threads: { text: '「Notion 系統設計最難的部分，不是技術——是讓對方真的願意用起來」', type: '系統思維' } },
-      2:  { threads: { text: '「我設計的系統越來越少「分類頁面」，越來越多「任務導向頁面」——人找東西時想的是「我要做什麼」，不是「這屬於哪類」」', type: '系統思維' },
+      1:  { threads: { text: '「接了一個新案子——客戶描述需求花了半小時，我問了一個問題，他說「對對對就是這個」。那個問題才是真正的需求。」', type: '輕觀察' } },
+      2:  { threads: { text: '「幫別人設計系統，第一次比第二次難。因為第二次你已經知道真正的問題在哪了。」', type: '輕觀察' },
             ig: { text: '一個企業 Notion 系統 vs 個人系統，設計邏輯差在這三點', format: '輪播' } },
-      3:  { threads: { text: '「幫客戶做完系統交付，我最在意的不是他說「很漂亮」——是他說「我知道怎麼用了」」', type: '系統思維' } },
-      4:  { threads: { text: '「Linked Database 的核心概念：你只需要維護一份資料，但它可以在十個地方以不同的形式被使用」', type: '進階觀點' } },
-      5:  { threads: { text: '「Notion AI 大家都在用它寫文字，我用它整理資料、分類筆記、跑結構——這才是它真正省時間的地方」', type: '進階觀點' },
+      3:  { threads: { text: '「你覺得 Notion 最值得深入研究的功能是什麼？」', type: '互動' } },
+      4:  { threads: { text: '「Linked Database 的核心概念：你只需要維護一份資料，但它可以在十個地方以不同的形式被使用」', type: '系統思維' } },
+      5:  { threads: { text: '「幫別人設計系統的時候，其實也在重新認識自己怎麼思考——每個客戶都讓我發現一個自己沒想過的使用情境」', type: '輕觀察' },
             ig: { text: 'Formula 進階應用：自動計算專案進度百分比，不用每次手動更新', format: '輪播' } },
-      6:  { threads: { text: '「你的 Notion 系統有沒有「入口頁面」？一個打開就知道今天要做什麼的地方——沒有這個，再多功能都是散的」', type: '系統思維' } },
+      6:  { threads: { text: '「一套好系統要有「可維護性」——你能不能在離開三個月後回來，還知道所有東西在哪、為什麼這樣設計」', type: '系統思維' } },
       7:  { threads: { text: '「你的 Notion 系統是為「現在的你」設計的，還是為「理想中的你」設計的？這兩種用起來完全不一樣」', type: '系統思維' },
             ig: { text: '從個人使用到團隊協作，Notion 架構需要做哪些調整？', format: '輪播' } },
-      8:  { threads: { text: '「最好的 Notion 系統不是功能最多的——是最符合使用者思考方式的」', type: '系統思維' } },
-      9:  { threads: { text: '「Timeline View + Dependency 組合起來用，是我目前管理多專案進度最有效的方法」', type: '進階觀點' },
+      8:  { threads: { text: '「你用 Notion 管理最複雜的一件事是什麼？」', type: '互動' } },
+      9:  { threads: { text: '「Notion 系統設計師的職業傷害：看到任何工作流程，都忍不住想拆解成 Database」', type: '輕觀察' },
             ig: { text: '為什麼我的 Notion 系統越做越簡單？因為我終於搞懂了「必要的複雜」', format: '輪播' } },
-      10: { threads: { text: '「設計系統，我最常做的判斷是：這個東西要不要變成 Database？標準就一個：你之後會不會需要過濾它」', type: '系統思維' } },
-      11: { threads: { text: '「一套好系統要有「可維護性」——你能不能在離開三個月後回來，還知道所有東西在哪、為什麼這樣設計」', type: '系統思維' } },
-      12: { threads: { text: '「幫企業導入 Notion，最難的不是教功能——是讓不同部門的人對「同一份資料」有共識」', type: '企業應用' },
+      10: { threads: { text: '「設計系統，我最常做的判斷：這個東西要不要變成 Database？標準就一個：你之後會不會需要過濾它」', type: '系統思維' } },
+      11: { threads: { text: '「幫企業導入 Notion，最難的不是教功能——是讓不同部門的人對「同一份資料」有共識」', type: '系統思維' } },
+      12: { threads: { text: '「Filter + Sort 組合用好，一個 Database 可以服務五種不同的工作情境——不需要建五個」', type: '系統思維' },
             ig: { text: '為什麼有些團隊導入 Notion 失敗了？我觀察到的三個共同原因', format: '輪播' } },
-      13: { threads: { text: '「Filter + Sort 組合用好，一個 Database 可以服務五種不同的工作情境——不需要建五個」', type: '進階觀點' } },
-      14: { threads: { text: '「我接過最讓我印象深刻的案子，不是最複雜的——是客戶三個月後傳訊息說「我每天都在用」的那個」', type: '系統思維故事' },
+      13: { threads: { text: '「你有沒有用某個 Notion 功能，讓你覺得「原來可以這樣用」？說說你的頓悟時刻」', type: '互動' } },
+      14: { threads: { text: '「交付完一套系統，客戶說「太複雜了學不會」——那不是客戶的問題，是我沒設計好。這是設計師要承擔的。」', type: '輕觀察' },
             ig: { text: '一套好的系統應該降低你的認知負荷，不是增加它', format: '輪播' } },
       15: { threads: { text: '「Notion 大使身份給我最大的禮物：第一時間知道 Notion 在想什麼，功能為什麼這樣設計」', type: '大使視角' } },
-      16: { threads: { text: '「週六早上，咖啡 + Notion + 沒人打擾——不是在整理，是在想下一套系統的架構」', type: '生活' },
+      16: { threads: { text: '「週六，咖啡 + Notion + 沒人打擾——不是在整理，是在想下一套系統的架構」', type: '輕觀察' },
             ig: { text: '為什麼我認為 Notion 是目前最適合中小型企業知識管理的工具', format: '輪播' } },
-      17: { threads: { text: '「台灣用 Notion 的人越來越多，但大部分還停在「個人筆記」——企業和團隊應用的潛力幾乎還沒被開發」', type: '大使視角' } },
+      17: { threads: { text: '「如果你只能選一個 Notion 功能深入學，你會選哪個？」', type: '互動' } },
       18: { threads: { text: '「系統設計是一種對話——你要一直去問「你遇到什麼問題」，不是自己想出一套然後丟給對方用」', type: '系統思維' } },
-      19: { threads: { text: '「我每次看到「Notion 太複雜」，都想說：你是在「用」它還是在「設計」它？這是兩件完全不同的事」', type: '觀點' },
+      19: { threads: { text: '「設計系統到一半，突然發現客戶說的需求跟真正的需求根本是兩回事——這種時刻最考驗設計師，也最有趣」', type: '輕觀察' },
             ig: { text: 'Timeline View + Dependency：我怎麼用它管理多專案進度', format: '輪播' } },
-      20: { threads: { text: '「Button 功能是 Notion 近幾年最低調但最實用的更新——把重複的操作自動化，把注意力留給值得思考的事」', type: '進階觀點' } },
-      21: { threads: { text: '「Notion 系統設計到一個階段，你會開始思考「維護成本」——好系統的維護時間，應該遠少於它幫你省下的時間」', type: '系統思維' },
+      20: { threads: { text: '「我每次看到「Notion 太複雜」，都想說：你是在「用」它還是在「設計」它？這是兩件完全不同的事」', type: '大使視角' } },
+      21: { threads: { text: '「我設計過最複雜的 Notion 系統，有十幾個 Database 互相 Relation——但交付給使用者的，只有三個頁面」', type: '系統思維' },
             ig: { text: '一個真實的 Notion 系統設計提案長什麼樣？我拆解我的流程', format: '輪播' } },
-      22: { threads: { text: '「我設計過最複雜的 Notion 系統，有十幾個 Database 互相 Relation——但交付的時候，使用者只看到三個頁面」', type: '系統思維' } },
+      22: { threads: { text: '「跟朋友解釋我在做什麼，說到一半他問：所以你就是幫人家整理 Notion？我沉默了兩秒。」', type: '輕觀察' } },
       23: { threads: { text: '「台灣用戶用 Notion 最常犯的一個錯：把它當成「更漂亮的 Excel」——這樣永遠不會體驗到它真正的威力」', type: '大使視角' },
             ig: { text: '台灣的 Notion 使用習慣跟國際有什麼不同？', format: '輪播' } },
-      24: { threads: { text: '「一個設計師最大的挑戰不是技術，是讀懂客戶「說不出口的需求」——他說要一個筆記系統，其實要的是一種掌控感」', type: '系統思維' } },
-      25: { threads: { text: '「Sub-item 功能出來之後，我重新設計了自己的專案管理系統——任務的層次感完全不一樣了」', type: '進階觀點' } },
-      26: { threads: { text: '「Notion 這幾年的更新方向很清楚：從個人筆記工具，往企業協作平台移動——這對我們這些重度用戶來說是好事」', type: '大使視角' },
+      24: { threads: { text: '「你有沒有用 Notion 設計過一套系統，然後真的改變了你的工作方式？說說你的故事」', type: '互動' } },
+      25: { threads: { text: '「Sub-item 功能出來之後，我重新設計了自己的專案管理系統——任務的層次感完全不一樣了」', type: '系統思維' } },
+      26: { threads: { text: '「Notion 這幾年的更新方向很清楚：從個人筆記工具，往企業協作平台移動——這對重度用戶來說是好事」', type: '大使視角' },
             ig: { text: 'Notion 這一年最大的變化——我身為大使的觀察', format: '輪播' } },
-      27: { threads: { text: '「好的 Notion 系統有一個特徵：你不需要記得「要去哪裡找」，系統會把你需要的東西推到你面前」', type: '系統思維' } },
-      28: { threads: { text: '「Notion 的 Callout、Toggle、Synced Block——這三個排版功能組合起來，可以讓複雜的頁面變得清晰到讓人驚訝」', type: '進階觀點' },
+      27: { threads: { text: '「好的 Notion 系統設計完，我會靜靜看著它幾分鐘——有一種把複雜的事情理清楚了的滿足感，這是這份工作最好的部分」', type: '輕觀察' } },
+      28: { threads: { text: '「Notion 的 Callout、Toggle、Synced Block——這三個排版功能組合起來，可以讓複雜的頁面變得清晰到讓人驚訝」', type: '系統思維' },
             ig: { text: 'Notion Sub-item 功能怎麼用才不會讓系統失控？', format: '輪播' } },
-      29: { threads: { text: '「五月接了幾個 Notion 系統設計案，讓我又確認了一件事：需求訪談做得好，設計就成功了一半」', type: '系統思維故事' } },
-      30: { threads: { text: '「週末不開電腦的時候，我還是會在腦子裡想系統架構——這大概就是真的喜歡這件事的感覺」', type: '生活' },
+      29: { threads: { text: '「這個月接案最大的體會：需求訪談做得好，設計就成功了一半。難的不是 Notion，是溝通。」', type: '輕觀察' } },
+      30: { threads: { text: '「週末不開電腦的時候，我還是會在腦子裡想系統架構——這大概就是真的喜歡這件事的感覺」', type: '輕觀察' },
             ig: { text: '作為 Notion 大使，我覺得最被低估的功能是什麼？', format: '輪播' } },
       31: { threads: { text: '「五月結束。這個月最大的體會：系統設計不是一次性的工作，是一種持續和使用者對話的過程」', type: '月底反思' } }
     }
@@ -311,6 +321,9 @@ function renderDays(account, filter) {
       const badges = `<span class="badge badge-threads">T</span>${day.ig ? '<span class="badge badge-ig">IG</span>' : ''}`;
       const preview = day.threads.text.replace(/「|」/g, '');
 
+      const acc = currentAccount;
+      const mo = currentMonth;
+
       card.innerHTML = `
         <div class="day-header" onclick="this.closest('.day-card').classList.toggle('open')">
           <div class="day-num">${d}</div>
@@ -324,11 +337,23 @@ function renderDays(account, filter) {
         <div class="day-body">
           <div class="content-row">
             <div class="type-label type-threads">THREADS</div>
-            <div class="content-text">${day.threads.text}<div class="content-meta">${day.threads.type}</div></div>
+            <div class="content-text">
+              <span class="editable-text" contenteditable="true"
+                data-acc="${acc}" data-month="${mo}" data-date="${d}" data-field="threads"
+                onblur="saveEdit(this)"
+                onclick="event.stopPropagation()">${day.threads.text}</span>
+              <div class="content-meta">${day.threads.type}</div>
+            </div>
           </div>
           ${day.ig ? `<div class="content-row">
             <div class="type-label type-ig">IG</div>
-            <div class="content-text">${day.ig.text}<div class="content-meta">${day.ig.format}</div></div>
+            <div class="content-text">
+              <span class="editable-text" contenteditable="true"
+                data-acc="${acc}" data-month="${mo}" data-date="${d}" data-field="ig"
+                onblur="saveEdit(this)"
+                onclick="event.stopPropagation()">${day.ig.text}</span>
+              <div class="content-meta">${day.ig.format}</div>
+            </div>
           </div>` : ''}
         </div>`;
 
@@ -375,7 +400,77 @@ function filterDays(btn, account, filter) {
   renderDays(account, filter);
 }
 
+// ─── EDIT & SAVE ──────────────────────────────────────────
+function saveEdit(el) {
+  const acc = el.dataset.acc;
+  const month = el.dataset.month;
+  const date = parseInt(el.dataset.date);
+  const field = el.dataset.field;
+  const newText = el.innerText.trim();
+
+  if (field === 'threads') {
+    data[acc][month][date].threads.text = newText;
+  } else {
+    data[acc][month][date].ig.text = newText;
+  }
+
+  // Update preview if threads
+  if (field === 'threads') {
+    const card = el.closest('.day-card');
+    const preview = card.querySelector('.day-preview');
+    if (preview) preview.textContent = newText.replace(/「|」/g, '');
+  }
+
+  // Save to localStorage
+  localStorage.setItem('social_calendar_edits', JSON.stringify(data));
+  showToast();
+}
+
+function showToast() {
+  const toast = document.getElementById('toast');
+  toast.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+}
+
+function loadSavedEdits() {
+  const saved = localStorage.getItem('social_calendar_edits');
+  if (!saved) return;
+  try {
+    const saved_data = JSON.parse(saved);
+    // Deep merge into data
+    ['sw','mi'].forEach(acc => {
+      ['april','may'].forEach(month => {
+        if (!saved_data[acc] || !saved_data[acc][month]) return;
+        Object.keys(saved_data[acc][month]).forEach(d => {
+          const sd = saved_data[acc][month][d];
+          if (!data[acc][month][d]) return;
+          if (sd.threads) data[acc][month][d].threads.text = sd.threads.text;
+          if (sd.ig && data[acc][month][d].ig) data[acc][month][d].ig.text = sd.ig.text;
+        });
+      });
+    });
+  } catch(e) {}
+}
+
+function exportHTML() {
+  const src = document.documentElement.outerHTML;
+  // Replace the data const with current data
+  const dataStr = JSON.stringify(data, null, 2);
+  const updated = src.replace(
+    /const data = \{[\s\S]*?\};\n\n\/\/ ─── RENDER/,
+    `const data = ${dataStr};\n\n// ─── RENDER`
+  );
+  const blob = new Blob([updated], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'social_calendar_updated.html';
+  a.click();
+  showToast();
+}
+
 // Init
+loadSavedEdits();
 renderDays('sw', 'all');
 renderDays('mi', 'all');
 setTimeout(() => {
