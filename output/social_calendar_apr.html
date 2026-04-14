@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>社群月曆｜4–5月</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans TC', sans-serif; background: #f5f4f0; color: #1a1a1a; min-height: 100vh; }
+
+  header { background: #1a1a1a; color: #fff; padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; }
+  header h1 { font-size: 17px; font-weight: 600; }
+  header span { font-size: 12px; color: #777; }
+
+  .top-bar { background: #fff; border-bottom: 1.5px solid #ececec; padding: 0 32px; display: flex; align-items: center; gap: 0; }
+  .month-tab { padding: 14px 20px; font-size: 13px; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; color: #aaa; transition: all 0.15s; }
+  .month-tab.active { color: #1a1a1a; border-bottom-color: #1a1a1a; }
+  .month-tab:hover:not(.active) { color: #555; }
+  .month-divider { width: 1px; height: 20px; background: #eee; margin: 0 4px; }
+
+  .account-tabs { display: flex; gap: 4px; padding: 20px 32px 0; }
+  .acc-tab { padding: 9px 22px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1.5px solid #ddd; background: #fff; border-radius: 8px 8px 0 0; border-bottom: none; color: #888; transition: all 0.15s; }
+  .acc-tab.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  .acc-tab:not(.active):hover { background: #f0f0f0; color: #333; }
+
+  .content { padding: 0 32px 48px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .filter-bar { display: flex; gap: 8px; padding: 16px 0 18px; flex-wrap: wrap; align-items: center; }
+  .filter-btn { padding: 5px 14px; border-radius: 20px; border: 1.5px solid #ddd; background: #fff; font-size: 12px; cursor: pointer; transition: all 0.15s; color: #555; }
+  .filter-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+
+  .week-label { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: #bbb; margin: 22px 0 8px; }
+
+  .day-card { background: #fff; border-radius: 12px; margin-bottom: 7px; border: 1.5px solid #ececec; overflow: hidden; transition: box-shadow 0.15s; }
+  .day-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+  .day-card.today { border-color: #6c63ff; }
+  .day-card.today .day-header { background: #faf9ff; }
+  .day-card.today .day-num { color: #6c63ff; }
+
+  .day-header { display: flex; align-items: center; padding: 11px 16px; cursor: pointer; user-select: none; gap: 12px; }
+  .day-num { font-size: 21px; font-weight: 700; min-width: 34px; line-height: 1; }
+  .day-info { flex: 1; min-width: 0; }
+  .day-weekday { font-size: 10px; color: #bbb; margin-bottom: 2px; letter-spacing: 0.04em; }
+  .day-preview { font-size: 13px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .day-badges { display: flex; gap: 4px; flex-shrink: 0; }
+  .badge { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px; }
+  .badge-threads { background: #ede9ff; color: #6c63ff; }
+  .badge-ig { background: #fde8f0; color: #e1306c; }
+  .chevron { font-size: 11px; color: #ccc; transition: transform 0.2s; flex-shrink: 0; }
+  .day-card.open .chevron { transform: rotate(180deg); }
+
+  .day-body { display: none; border-top: 1.5px solid #f2f2f2; }
+  .day-card.open .day-body { display: block; }
+
+  .content-row { display: flex; align-items: stretch; }
+  .content-row + .content-row { border-top: 1.5px solid #f2f2f2; }
+  .type-label { writing-mode: vertical-rl; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; padding: 14px 9px; min-width: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .type-threads { background: #ede9ff; color: #6c63ff; }
+  .type-ig { background: #fde8f0; color: #e1306c; }
+  .content-text { padding: 13px 16px; font-size: 13.5px; line-height: 1.7; color: #333; flex: 1; }
+  .content-meta { font-size: 11px; color: #bbb; margin-top: 3px; }
+
+  @media (max-width: 600px) {
+    header, .top-bar, .account-tabs, .content { padding-left: 16px; padding-right: 16px; }
+    .day-preview { max-width: 160px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>社群月曆</h1>
+  <span>小勝利 &amp; 個人品牌</span>
+</header>
+
+<div class="top-bar">
+  <div class="month-tab active" onclick="switchMonth('april')">四月</div>
+  <div class="month-divider"></div>
+  <div class="month-tab" onclick="switchMonth('may')">五月</div>
+</div>
+
+<div class="account-tabs">
+  <div class="acc-tab active" onclick="switchAccount('sw')">小勝利</div>
+  <div class="acc-tab" onclick="switchAccount('mi')">個人品牌</div>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-sw">
+    <div class="filter-bar">
+      <div class="filter-btn active" onclick="filterDays(this,'sw','all')">全部</div>
+      <div class="filter-btn" onclick="filterDays(this,'sw','ig')">IG 發文日</div>
+    </div>
+    <div id="days-sw"></div>
+  </div>
+  <div class="panel" id="panel-mi">
+    <div class="filter-bar">
+      <div class="filter-btn active" onclick="filterDays(this,'mi','all')">全部</div>
+      <div class="filter-btn" onclick="filterDays(this,'mi','ig')">IG 發文日</div>
+    </div>
+    <div id="days-mi"></div>
+  </div>
+</div>
+
+<script>
+const DAYS = ['日','一','二','三','四','五','六'];
+let currentMonth = 'april';
+let currentAccount = 'sw';
+let currentFilter = { sw: 'all', mi: 'all' };
+
+// ─── WEEK GROUPS ───────────────────────────────────────────
+const weekGroups = {
+  april: [
+    { label: '4/14–4/19', dates: [14,15,16,17,18,19] },
+    { label: '4/20–4/26', dates: [20,21,22,23,24,25,26] },
+    { label: '4/27–4/30', dates: [27,28,29,30] }
+  ],
+  may: [
+    { label: '5/1–5/3',   dates: [1,2,3] },
+    { label: '5/4–5/10',  dates: [4,5,6,7,8,9,10] },
+    { label: '5/11–5/17', dates: [11,12,13,14,15,16,17] },
+    { label: '5/18–5/24', dates: [18,19,20,21,22,23,24] },
+    { label: '5/25–5/31', dates: [25,26,27,28,29,30,31] }
+  ]
+};
+
+// ─── DATA ─────────────────────────────────────────────────
+const data = {
+  sw: {
+    april: {
+      14: { threads: { text: '「花最多時間整理 Notion 的人，通常系統跑起來最慢——因為在整理的不是系統，是焦慮」', type: '觀點共鳴' } },
+      15: { threads: { text: '「打開 Notion 然後發呆十分鐘的人請舉手」', type: '打鬧共鳴' },
+            ig: { text: '你的 Notion 是「倉庫」還是「系統」？差別在這裡', format: '輪播' } },
+      16: { threads: { text: '「系統不是越複雜越好，我一直在刪東西」', type: '輕觀點' } },
+      17: { threads: { text: '「以前我以為 Notion 就是美版 Word。直到設了第一個 Database，才發現根本是兩種工具。」', type: '觀點共鳴' },
+            ig: { text: '一個模板，同時管理計劃、財務、習慣——實際畫面給你看', format: '輪播' } },
+      18: { threads: { text: '「那種：Notion 裡寫了三頁計劃，然後一件都沒執行完——那份計劃其實是寫給焦慮的」', type: '自我共鳴' } },
+      19: { threads: { text: '「整理 Notion 的感覺跟打掃房間一樣爽」', type: '生活共鳴' },
+            ig: { text: '這個 Notion 設定，90% 的人不知道但用了就回不去', format: '輪播' } },
+      20: { threads: { text: '「我見過最會用 Notion 的人，頁面少得嚇人。我見過最不會用的，頁面多得找不到自己在哪」', type: '觀點' } },
+      21: { threads: { text: '「為什麼我不用 Notion 記日記」', type: '反預期觀點' } },
+      22: { threads: { text: '「Notion 模板買了沒在用的請舉手」', type: '打鬧共鳴' },
+            ig: { text: 'Notion Database 的 Relation，一直看不懂？我用這個比喻就懂了', format: '輪播' } },
+      23: { threads: { text: '「設了 Database、Filter 一下，發現自己三個月沒碰的任務全跑出來——那一刻又愧疚又清醒」', type: '具體共鳴' } },
+      24: { threads: { text: '「生產力工具用太多，反而是一種拖延」', type: '觀點' },
+            ig: { text: 'Notion Button 功能：讓我省掉每週重複操作的那件事', format: '輪播' } },
+      25: { threads: { text: '「我朋友說 Notion 太複雜，我說：你只是還沒遇到讓你覺得值得的那個用法」', type: '對話共鳴' } },
+      26: { threads: { text: '「週末用來整理系統的人是我」', type: '生活共鳴' },
+            ig: { text: '為什麼我不建議你一開始就用複雜模板？', format: '輪播' } },
+      27: { threads: { text: '「Notion 最容易踩的坑不是功能不會用——是太早開始設計，太晚開始使用」', type: '觀點' } },
+      28: { threads: { text: '「從亂到整齊，這個過程比結果更重要」', type: '觀點' } },
+      29: { threads: { text: '「有一種 Notion 用戶：系統很漂亮，但每次找東西還是要翻很久——建的時候是為了好看，不是為了找」', type: '觀點共鳴' },
+            ig: { text: '我幫自己設計了一個「每週 review」頁面，它改變了什麼', format: '輪播' } },
+      30: { threads: { text: '「每個月初開新的 Notion 頁面，覺得這次一定會認真用——然後五月又到了」', type: '自我諷刺共鳴' } }
+    },
+    may: {
+      1:  { threads: { text: '「勞動節的 Notion 用法：把「休息」加進待辦清單，然後感覺休息也變成一種完成任務」', type: '節日打鬧' } },
+      2:  { threads: { text: '「用了模板之後，週末還在想工作的事少了很多」', type: '生活共鳴' },
+            ig: { text: '「Notion 用了三年，工作還是亂」——你可能一直搞錯了一件事', format: '輪播' } },
+      3:  { threads: { text: '「Notion 最讓我滿意的時刻不是建完系統——是三個月後打開它，發現自己還在用」', type: '真實觀點' } },
+      4:  { threads: { text: '「選工具最大的誤區：找完美的，而不是找適合自己的」', type: '觀點' } },
+      5:  { threads: { text: '「用 Gallery View 展示自己的模板那一刻，突然覺得自己很厲害。不管有沒有人看。」', type: '自我共鳴' },
+            ig: { text: '那些說「Notion 太複雜」的人，通常卡在同一個地方', format: '輪播' } },
+      6:  { threads: { text: '「花了一小時設定 Notion，結果什麼事都沒做到——有沒有人懂」', type: '打鬧共鳴' } },
+      7:  { threads: { text: '「我有一個 Notion 頁面叫做「待整理」，裡面有另一個叫「待整理 2」，裡面還有一個叫「待整理（真的這次）」」', type: '自我諷刺共鳴' },
+            ig: { text: '我測試過 20 個 to-do app，最後還是回到 Notion，因為⋯⋯', format: '輪播' } },
+      8:  { threads: { text: '「週五碎念：我永遠在開新的 Notion 頁面」', type: '打鬧' } },
+      9:  { threads: { text: '「週末整理系統 vs 週末什麼都不做——我今天選後者」', type: '生活' },
+            ig: { text: '用模板三個月前 vs. 後：我真實的狀態變化', format: '輪播' } },
+      10: { threads: { text: '「Notion 開著，to-do list 在那，但我先去做了三件不在清單上的事，感覺更有生產力」', type: '自我諷刺共鳴' } },
+      11: { threads: { text: '「Notion 讓我最受益的不是功能，是它逼我思考流程」', type: '觀點' } },
+      12: { threads: { text: '「Filter 設對了那一刻：原來昨天那個頁面在這。原來上週沒做完的在這。原來我早就知道我在逃避什麼。」', type: '具體共鳴' },
+            ig: { text: '不會寫 code、不懂技術，我怎麼設計出自己的 Notion 系統？', format: '輪播' } },
+      13: { threads: { text: '「Notion 最誠實的功能：把你的任務日期全部列出來，你就會看到什麼一直在被往後推」', type: '觀點' } },
+      14: { threads: { text: '「模板設計原則：先想清楚這個頁面是為了找還是記」', type: '觀點' },
+            ig: { text: '「我沒時間整理 Notion」——這句話背後真正的問題是什麼', format: '輪播' } },
+      15: { threads: { text: '「比起買模板，我更建議你先想清楚要解決什麼問題」', type: '輕觀點' } },
+      16: { threads: { text: '「每次打開 Notion 的心情 vs 打開 Email 的心情（一個是走進書房，一個是走進待處理的行李）」', type: '生活對比' },
+            ig: { text: '如果你只用 Notion 做一件事，我建議你先從這個開始', format: '輪播' } },
+      17: { threads: { text: '「Notion 出新功能，我的流程：看影片 → 覺得很棒 → 開一個測試頁面 → 忘記 → 半年後朋友問我 → 我說我知道啊」', type: '自我諷刺共鳴' } },
+      18: { threads: { text: '「整理不是目的，找得到才是」', type: '觀點' } },
+      19: { threads: { text: '「把目標寫在 Notion 首頁每天都看到——完成的事比用任何工具都多。不是 Notion 神奇，是沒辦法假裝忘記」', type: '真實觀點' },
+            ig: { text: '你用 Notion 最想解決的是什麼？（票選結果公開）', format: '輪播' } },
+      20: { threads: { text: '「Notion 用了一年，覺得自己剛入門。用了三年，確定沒有完整系統，只有一直在迭代的使用習慣。」', type: '觀點' } },
+      21: { threads: { text: '「一個好的模板，應該讓你少動腦，不是多動腦」', type: '觀點' },
+            ig: { text: '我用 Notion 管理電子報的方式（從主題發想到排程一頁搞定）', format: '輪播' } },
+      22: { threads: { text: '「週五整理 Notion：刪掉三十個頁面、關掉五個沒用的 Database、然後對著乾淨的側邊欄發呆兩分鐘」', type: '生活具體共鳴' } },
+      23: { threads: { text: '「打開六月的計劃頁面，發現上面有三件四月就應該做的事」', type: '自我諷刺共鳴' },
+            ig: { text: 'Notion AI 我真的有在用的功能，只有這兩個', format: '輪播' } },
+      24: { threads: { text: '「Notion 最難上手的地方不是功能——是要先知道自己想解決什麼，才知道怎麼設計。很多人跳過了這步。」', type: '觀點' } },
+      25: { threads: { text: '「花了三年，我才搞懂 Notion 的道理只有一個：少建一點，多用一點」', type: '觀點' } },
+      26: { threads: { text: '「Linked View 設好的那一刻：不同頁面的資料同步更新——這才是 Notion 讓我留下來的理由」', type: '具體共鳴' },
+            ig: { text: '手機版 Notion 怎麼用？我的三個高頻操作', format: '輪播' } },
+      27: { threads: { text: '「你有沒有放棄過 Notion，後來又回來？說說發生了什麼」', type: '故事互動' } },
+      28: { threads: { text: '「設計模板最爽的瞬間：系統跑起來的那一刻」', type: '故事' },
+            ig: { text: '這個模板我自己每天都在用（不是業配，是真的）', format: '輪播' } },
+      29: { threads: { text: '「這週 Notion 最大成就：把卡了兩週的任務從 In Progress 移到 Done。就這樣，但感覺很好。」', type: '具體共鳴' } },
+      30: { threads: { text: '「週末模式：工作頁面關起來，個人頁面打開」', type: '生活' },
+            ig: { text: 'Notion 的 Linked View 是什麼？用「跨品牌任務管理」給你看', format: '輪播' } },
+      31: { threads: { text: '「五月的 Notion 報告：開了新頁面、刪了一堆、幾個系統跑起來、幾個完全沒用到。不完美，但是真的。」', type: '月底具體反思' } }
+    }
+  },
+  mi: {
+    april: {
+      14: { threads: { text: '「大部分人的 Notion 沒有「入口」——有很多頁面，但沒有一個讓你知道今天要做什麼的地方」', type: '系統思維' } },
+      15: { threads: { text: '「Notion 系統設計，我第一個問的問題永遠不是「你想放什麼」——是「三個月後你還會不會開這個頁面」」', type: '系統思維' },
+            ig: { text: 'Notion 大使是什麼？我怎麼成為台灣官方大使的', format: '輪播' } },
+      16: { threads: { text: '「Relation 用對的那一刻：你會發現自己一直在手動做的事，其實 Notion 可以自動幫你連起來」', type: '進階觀點' } },
+      17: { threads: { text: '「設計好的 Notion 系統有一個標誌：你打開它，不需要想「我要去哪裡」」', type: '系統思維' },
+            ig: { text: '大部分人設計 Notion 系統的順序是錯的——應該先想「誰用」再想「放什麼」', format: '輪播' } },
+      18: { threads: { text: '「企業導入 Notion 失敗，幾乎都是同一個原因：把它當資料夾用，沒有當系統設計」', type: '企業應用觀點' } },
+      19: { threads: { text: '「我的 Formula 越寫越短——因為我終於知道什麼問題要用系統設計解決，不是靠公式硬撐」', type: '進階觀點' },
+            ig: { text: 'Notion Relation + Rollup 組合：我如何用它追蹤跨品牌的任務進度', format: '輪播' } },
+      20: { threads: { text: '「身為 Notion 大使，我最常被問的不是功能，是「這樣設計對嗎？」——我的答案永遠是：對誰？」', type: '大使視角' } },
+      21: { threads: { text: '「一個設計好的系統，維護時間應該遠少於它幫你省下來的時間——這是我用來判斷系統成不成功的標準」', type: '系統思維' } },
+      22: { threads: { text: '「Notion 的 Sub-item 用錯了會讓系統失控，用對了會讓你的 Database 層次感瞬間提升」', type: '進階觀點' },
+            ig: { text: '幫企業導入 Notion，第一個要解決的不是「功能問題」，是「習慣問題」', format: '輪播' } },
+      23: { threads: { text: '「你的 Notion 有沒有「死頁面」？建了之後從來沒再開的——那通常是系統設計問題，不是你懶」', type: '系統思維共鳴' } },
+      24: { threads: { text: '「Rollup 是 Notion 裡讓我最興奮的功能——你可以跨 Database 彙總資料，讓資訊自己流動」', type: '進階觀點' },
+            ig: { text: '用 Button 自動化我的每週 Review 流程——點一下，七件事自動完成', format: '輪播' } },
+      25: { threads: { text: '「我每次重新設計一套系統，都會刪掉上一版 30% 的東西——那些東西當時覺得需要，後來發現是焦慮」', type: '系統思維' } },
+      26: { threads: { text: '「Database View 不只是視覺呈現——不同的 View 代表不同的思考角度，設計得好可以讓同一份資料服務不同情境」', type: '進階觀點' },
+            ig: { text: '系統設計最常見的錯誤：把「記錄」和「管理」放在同一個 Database', format: '輪播' } },
+      27: { threads: { text: '「系統設計有一個反直覺的真理：越想把所有情況都考慮到，系統越容易死掉」', type: '系統思維' } },
+      28: { threads: { text: '「一套 Notion 系統設計完，我會問自己：一個沒看過這套系統的人，能不能 5 分鐘內知道怎麼用？」', type: '系統思維' } },
+      29: { threads: { text: '「Linked Database 是 Notion 最被低估的功能之一——同一份資料，在不同脈絡下呈現不同的樣貌」', type: '進階觀點' },
+            ig: { text: 'Linked Database 實戰：同一份資料，在不同頁面呈現不同樣貌', format: '輪播' } },
+      30: { threads: { text: '「Notion 大使讓我最意外的一件事：官方比我想像中更在乎用戶的實際使用流程，不只是功能」', type: '大使視角' } }
+    },
+    may: {
+      1:  { threads: { text: '「Notion 系統設計最難的部分，不是技術——是讓對方真的願意用起來」', type: '系統思維' } },
+      2:  { threads: { text: '「我設計的系統越來越少「分類頁面」，越來越多「任務導向頁面」——人找東西時想的是「我要做什麼」，不是「這屬於哪類」」', type: '系統思維' },
+            ig: { text: '一個企業 Notion 系統 vs 個人系統，設計邏輯差在這三點', format: '輪播' } },
+      3:  { threads: { text: '「幫客戶做完系統交付，我最在意的不是他說「很漂亮」——是他說「我知道怎麼用了」」', type: '系統思維' } },
+      4:  { threads: { text: '「Linked Database 的核心概念：你只需要維護一份資料，但它可以在十個地方以不同的形式被使用」', type: '進階觀點' } },
+      5:  { threads: { text: '「Notion AI 大家都在用它寫文字，我用它整理資料、分類筆記、跑結構——這才是它真正省時間的地方」', type: '進階觀點' },
+            ig: { text: 'Formula 進階應用：自動計算專案進度百分比，不用每次手動更新', format: '輪播' } },
+      6:  { threads: { text: '「你的 Notion 系統有沒有「入口頁面」？一個打開就知道今天要做什麼的地方——沒有這個，再多功能都是散的」', type: '系統思維' } },
+      7:  { threads: { text: '「你的 Notion 系統是為「現在的你」設計的，還是為「理想中的你」設計的？這兩種用起來完全不一樣」', type: '系統思維' },
+            ig: { text: '從個人使用到團隊協作，Notion 架構需要做哪些調整？', format: '輪播' } },
+      8:  { threads: { text: '「最好的 Notion 系統不是功能最多的——是最符合使用者思考方式的」', type: '系統思維' } },
+      9:  { threads: { text: '「Timeline View + Dependency 組合起來用，是我目前管理多專案進度最有效的方法」', type: '進階觀點' },
+            ig: { text: '為什麼我的 Notion 系統越做越簡單？因為我終於搞懂了「必要的複雜」', format: '輪播' } },
+      10: { threads: { text: '「設計系統，我最常做的判斷是：這個東西要不要變成 Database？標準就一個：你之後會不會需要過濾它」', type: '系統思維' } },
+      11: { threads: { text: '「一套好系統要有「可維護性」——你能不能在離開三個月後回來，還知道所有東西在哪、為什麼這樣設計」', type: '系統思維' } },
+      12: { threads: { text: '「幫企業導入 Notion，最難的不是教功能——是讓不同部門的人對「同一份資料」有共識」', type: '企業應用' },
+            ig: { text: '為什麼有些團隊導入 Notion 失敗了？我觀察到的三個共同原因', format: '輪播' } },
+      13: { threads: { text: '「Filter + Sort 組合用好，一個 Database 可以服務五種不同的工作情境——不需要建五個」', type: '進階觀點' } },
+      14: { threads: { text: '「我接過最讓我印象深刻的案子，不是最複雜的——是客戶三個月後傳訊息說「我每天都在用」的那個」', type: '系統思維故事' },
+            ig: { text: '一套好的系統應該降低你的認知負荷，不是增加它', format: '輪播' } },
+      15: { threads: { text: '「Notion 大使身份給我最大的禮物：第一時間知道 Notion 在想什麼，功能為什麼這樣設計」', type: '大使視角' } },
+      16: { threads: { text: '「週六早上，咖啡 + Notion + 沒人打擾——不是在整理，是在想下一套系統的架構」', type: '生活' },
+            ig: { text: '為什麼我認為 Notion 是目前最適合中小型企業知識管理的工具', format: '輪播' } },
+      17: { threads: { text: '「台灣用 Notion 的人越來越多，但大部分還停在「個人筆記」——企業和團隊應用的潛力幾乎還沒被開發」', type: '大使視角' } },
+      18: { threads: { text: '「系統設計是一種對話——你要一直去問「你遇到什麼問題」，不是自己想出一套然後丟給對方用」', type: '系統思維' } },
+      19: { threads: { text: '「我每次看到「Notion 太複雜」，都想說：你是在「用」它還是在「設計」它？這是兩件完全不同的事」', type: '觀點' },
+            ig: { text: 'Timeline View + Dependency：我怎麼用它管理多專案進度', format: '輪播' } },
+      20: { threads: { text: '「Button 功能是 Notion 近幾年最低調但最實用的更新——把重複的操作自動化，把注意力留給值得思考的事」', type: '進階觀點' } },
+      21: { threads: { text: '「Notion 系統設計到一個階段，你會開始思考「維護成本」——好系統的維護時間，應該遠少於它幫你省下的時間」', type: '系統思維' },
+            ig: { text: '一個真實的 Notion 系統設計提案長什麼樣？我拆解我的流程', format: '輪播' } },
+      22: { threads: { text: '「我設計過最複雜的 Notion 系統，有十幾個 Database 互相 Relation——但交付的時候，使用者只看到三個頁面」', type: '系統思維' } },
+      23: { threads: { text: '「台灣用戶用 Notion 最常犯的一個錯：把它當成「更漂亮的 Excel」——這樣永遠不會體驗到它真正的威力」', type: '大使視角' },
+            ig: { text: '台灣的 Notion 使用習慣跟國際有什麼不同？', format: '輪播' } },
+      24: { threads: { text: '「一個設計師最大的挑戰不是技術，是讀懂客戶「說不出口的需求」——他說要一個筆記系統，其實要的是一種掌控感」', type: '系統思維' } },
+      25: { threads: { text: '「Sub-item 功能出來之後，我重新設計了自己的專案管理系統——任務的層次感完全不一樣了」', type: '進階觀點' } },
+      26: { threads: { text: '「Notion 這幾年的更新方向很清楚：從個人筆記工具，往企業協作平台移動——這對我們這些重度用戶來說是好事」', type: '大使視角' },
+            ig: { text: 'Notion 這一年最大的變化——我身為大使的觀察', format: '輪播' } },
+      27: { threads: { text: '「好的 Notion 系統有一個特徵：你不需要記得「要去哪裡找」，系統會把你需要的東西推到你面前」', type: '系統思維' } },
+      28: { threads: { text: '「Notion 的 Callout、Toggle、Synced Block——這三個排版功能組合起來，可以讓複雜的頁面變得清晰到讓人驚訝」', type: '進階觀點' },
+            ig: { text: 'Notion Sub-item 功能怎麼用才不會讓系統失控？', format: '輪播' } },
+      29: { threads: { text: '「五月接了幾個 Notion 系統設計案，讓我又確認了一件事：需求訪談做得好，設計就成功了一半」', type: '系統思維故事' } },
+      30: { threads: { text: '「週末不開電腦的時候，我還是會在腦子裡想系統架構——這大概就是真的喜歡這件事的感覺」', type: '生活' },
+            ig: { text: '作為 Notion 大使，我覺得最被低估的功能是什麼？', format: '輪播' } },
+      31: { threads: { text: '「五月結束。這個月最大的體會：系統設計不是一次性的工作，是一種持續和使用者對話的過程」', type: '月底反思' } }
+    }
+  }
+};
+
+// ─── RENDER ───────────────────────────────────────────────
+function getDow(month, date) {
+  const m = month === 'april' ? 3 : 4;
+  return DAYS[new Date(2026, m, date).getDay()];
+}
+
+function isToday(month, date) {
+  const now = new Date();
+  const m = month === 'april' ? 3 : 4;
+  return now.getFullYear() === 2026 && now.getMonth() === m && now.getDate() === date;
+}
+
+function renderDays(account, filter) {
+  const container = document.getElementById('days-' + account);
+  container.innerHTML = '';
+  const monthData = data[account][currentMonth];
+  const groups = weekGroups[currentMonth];
+
+  groups.forEach(group => {
+    let hasVisible = false;
+    const groupEls = [];
+
+    group.dates.forEach(d => {
+      const day = monthData[d];
+      if (!day) return;
+      if (filter === 'ig' && !day.ig) return;
+      hasVisible = true;
+
+      const card = document.createElement('div');
+      card.className = 'day-card' + (isToday(currentMonth, d) ? ' today' : '');
+
+      const badges = `<span class="badge badge-threads">T</span>${day.ig ? '<span class="badge badge-ig">IG</span>' : ''}`;
+      const preview = day.threads.text.replace(/「|」/g, '');
+
+      card.innerHTML = `
+        <div class="day-header" onclick="this.closest('.day-card').classList.toggle('open')">
+          <div class="day-num">${d}</div>
+          <div class="day-info">
+            <div class="day-weekday">週${getDow(currentMonth, d)}${isToday(currentMonth, d) ? ' · 今天' : ''}</div>
+            <div class="day-preview">${preview}</div>
+          </div>
+          <div class="day-badges">${badges}</div>
+          <div class="chevron">▼</div>
+        </div>
+        <div class="day-body">
+          <div class="content-row">
+            <div class="type-label type-threads">THREADS</div>
+            <div class="content-text">${day.threads.text}<div class="content-meta">${day.threads.type}</div></div>
+          </div>
+          ${day.ig ? `<div class="content-row">
+            <div class="type-label type-ig">IG</div>
+            <div class="content-text">${day.ig.text}<div class="content-meta">${day.ig.format}</div></div>
+          </div>` : ''}
+        </div>`;
+
+      groupEls.push(card);
+    });
+
+    if (hasVisible) {
+      const lbl = document.createElement('div');
+      lbl.className = 'week-label';
+      lbl.textContent = group.label;
+      container.appendChild(lbl);
+      groupEls.forEach(el => container.appendChild(el));
+    }
+  });
+}
+
+function switchMonth(month) {
+  currentMonth = month;
+  document.querySelectorAll('.month-tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0 && month === 'april') || (i === 1 && month === 'may'));
+  });
+  renderDays('sw', currentFilter.sw);
+  renderDays('mi', currentFilter.mi);
+  // auto-open today if exists
+  setTimeout(() => {
+    const today = document.querySelector('.day-card.today .day-header');
+    if (today) today.closest('.day-card').classList.add('open');
+  }, 50);
+}
+
+function switchAccount(acc) {
+  currentAccount = acc;
+  document.querySelectorAll('.acc-tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0 && acc === 'sw') || (i === 1 && acc === 'mi'));
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + acc).classList.add('active');
+}
+
+function filterDays(btn, account, filter) {
+  currentFilter[account] = filter;
+  btn.closest('.filter-bar').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDays(account, filter);
+}
+
+// Init
+renderDays('sw', 'all');
+renderDays('mi', 'all');
+setTimeout(() => {
+  const today = document.querySelector('.day-card.today .day-header');
+  if (today) today.closest('.day-card').classList.add('open');
+}, 50);
+</script>
+</body>
+</html>
