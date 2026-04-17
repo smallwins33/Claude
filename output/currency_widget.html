@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>幣值換算器</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Notion Sans TC', 'Noto Sans TC', -apple-system, sans-serif;
+      background: #ffffff;
+      color: #1a1a1a;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 20px;
+    }
+
+    .widget {
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #b0b0b0;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .currency-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .select-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    .select-wrapper::after {
+      content: '▾';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #aaa;
+      font-size: 12px;
+      pointer-events: none;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px 32px 10px 12px;
+      border: 1.5px solid #ebebeb;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1a1a1a;
+      background: #fafafa;
+      appearance: none;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    select:focus {
+      border-color: #1a1a1a;
+      background: #fff;
+    }
+
+    .swap-btn {
+      width: 38px;
+      height: 38px;
+      border: 1.5px solid #ebebeb;
+      border-radius: 10px;
+      background: #fafafa;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      flex-shrink: 0;
+      color: #666;
+      transition: background 0.15s, border-color 0.15s;
+      user-select: none;
+    }
+
+    .swap-btn:hover {
+      background: #f0f0f0;
+      border-color: #d0d0d0;
+    }
+
+    .swap-btn:active {
+      background: #e8e8e8;
+    }
+
+    .amount-section {
+      margin-bottom: 12px;
+    }
+
+    .amount-input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid #ebebeb;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 26px;
+      font-weight: 500;
+      color: #1a1a1a;
+      background: #fff;
+      outline: none;
+      text-align: right;
+      transition: border-color 0.15s;
+      -moz-appearance: textfield;
+    }
+
+    .amount-input::-webkit-outer-spin-button,
+    .amount-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+
+    .amount-input:focus {
+      border-color: #1a1a1a;
+    }
+
+    .amount-input::placeholder {
+      color: #d0d0d0;
+      font-weight: 300;
+    }
+
+    .divider {
+      height: 1px;
+      background: #f0f0f0;
+      margin: 12px 0;
+    }
+
+    .result-section {
+      margin-bottom: 16px;
+    }
+
+    .result-box {
+      background: #f7f7f7;
+      border-radius: 10px;
+      padding: 18px 16px 14px;
+      text-align: right;
+      min-height: 78px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .result-amount {
+      font-size: 30px;
+      font-weight: 600;
+      color: #1a1a1a;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+      word-break: break-all;
+    }
+
+    .result-amount.loading-text {
+      font-size: 14px;
+      font-weight: 400;
+      color: #b0b0b0;
+    }
+
+    .result-label {
+      font-size: 13px;
+      color: #a0a0a0;
+      margin-top: 4px;
+      font-weight: 400;
+    }
+
+    .rate-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .rate-info {
+      font-size: 11.5px;
+      color: #c0c0c0;
+    }
+
+    .rate-info.error {
+      color: #e05c5c;
+    }
+
+    .update-date {
+      font-size: 11.5px;
+      color: #c0c0c0;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .pulsing {
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="widget">
+
+    <div class="label">換算幣別</div>
+    <div class="currency-row">
+      <div class="select-wrapper">
+        <select id="from-currency">
+          <option value="TWD">台幣 TWD</option>
+          <option value="USD">美元 USD</option>
+          <option value="JPY">日圓 JPY</option>
+          <option value="KRW">韓元 KRW</option>
+          <option value="EUR">歐元 EUR</option>
+          <option value="GBP">英鎊 GBP</option>
+          <option value="HKD">港幣 HKD</option>
+          <option value="SGD">新幣 SGD</option>
+        </select>
+      </div>
+      <button class="swap-btn" onclick="swapCurrencies()" title="互換幣別">⇄</button>
+      <div class="select-wrapper">
+        <select id="to-currency">
+          <option value="USD">美元 USD</option>
+          <option value="TWD">台幣 TWD</option>
+          <option value="JPY">日圓 JPY</option>
+          <option value="KRW">韓元 KRW</option>
+          <option value="EUR">歐元 EUR</option>
+          <option value="GBP">英鎊 GBP</option>
+          <option value="HKD">港幣 HKD</option>
+          <option value="SGD">新幣 SGD</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="amount-section">
+      <div class="label">金額</div>
+      <input
+        type="number"
+        id="amount"
+        class="amount-input"
+        placeholder="0"
+        value="1"
+        min="0"
+        step="any"
+      >
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="result-section">
+      <div class="label">換算結果</div>
+      <div class="result-box">
+        <div class="result-amount pulsing" id="result">載入中…</div>
+        <div class="result-label" id="result-label"></div>
+      </div>
+    </div>
+
+    <div class="rate-row">
+      <div class="rate-info" id="rate-info"></div>
+      <div class="update-date" id="update-date"></div>
+    </div>
+
+  </div>
+
+  <script>
+    const CURRENCY_NAMES = {
+      TWD: '台幣', USD: '美元', JPY: '日圓',
+      KRW: '韓元', EUR: '歐元', GBP: '英鎊',
+      HKD: '港幣', SGD: '新幣'
+    };
+
+    // 小數位數：日圓、韓元取整數
+    const NO_DECIMAL = new Set(['JPY', 'KRW']);
+
+    let cachedRates = {};   // { base: { to: rate, ... } }
+    let cachedDate = {};    // { base: dateString }
+    let convertTimer = null;
+
+    function formatNum(num, currency) {
+      if (NO_DECIMAL.has(currency)) {
+        return Math.round(num).toLocaleString('zh-TW');
+      }
+      return num.toLocaleString('zh-TW', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 4
+      });
+    }
+
+    async function fetchRates(base) {
+      if (cachedRates[base]) return; // 已有快取
+      const url = `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/${base.toLowerCase()}.json`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('API 錯誤');
+      const data = await res.json();
+      cachedRates[base] = data[base.toLowerCase()];
+      cachedDate[base] = data.date;
+    }
+
+    async function convert() {
+      const from = document.getElementById('from-currency').value;
+      const to   = document.getElementById('to-currency').value;
+      const raw  = document.getElementById('amount').value;
+      const amount = parseFloat(raw);
+
+      const resultEl  = document.getElementById('result');
+      const labelEl   = document.getElementById('result-label');
+      const rateEl    = document.getElementById('rate-info');
+      const dateEl    = document.getElementById('update-date');
+
+      // 清空動畫
+      resultEl.classList.remove('pulsing', 'loading-text');
+
+      if (!raw || isNaN(amount) || amount < 0) {
+        resultEl.textContent = '—';
+        labelEl.textContent = '';
+        rateEl.textContent = '';
+        dateEl.textContent = '';
+        return;
+      }
+
+      if (from === to) {
+        resultEl.textContent = formatNum(amount, to);
+        labelEl.textContent = `${CURRENCY_NAMES[to]} ${to}`;
+        rateEl.textContent = '同幣別，無須換算';
+        dateEl.textContent = '';
+        return;
+      }
+
+      // 顯示載入狀態
+      resultEl.textContent = '更新中…';
+      resultEl.classList.add('loading-text', 'pulsing');
+      rateEl.textContent = '';
+      dateEl.textContent = '';
+
+      try {
+        await fetchRates(from);
+        const rate = cachedRates[from][to.toLowerCase()];
+
+        if (rate == null) throw new Error('找不到匯率');
+
+        const converted = amount * rate;
+        resultEl.classList.remove('pulsing', 'loading-text');
+        resultEl.textContent = formatNum(converted, to);
+        labelEl.textContent = `${CURRENCY_NAMES[to]} ${to}`;
+        rateEl.textContent = `1 ${from} ≈ ${formatNum(rate, to)} ${to}`;
+        dateEl.textContent = `匯率日期 ${cachedDate[from]}`;
+        rateEl.classList.remove('error');
+      } catch (e) {
+        resultEl.classList.remove('pulsing', 'loading-text');
+        resultEl.textContent = '—';
+        labelEl.textContent = '';
+        rateEl.textContent = '無法取得匯率，請稍後再試';
+        rateEl.classList.add('error');
+        dateEl.textContent = '';
+      }
+    }
+
+    function swapCurrencies() {
+      const fromEl = document.getElementById('from-currency');
+      const toEl   = document.getElementById('to-currency');
+      const tmp    = fromEl.value;
+      fromEl.value = toEl.value;
+      toEl.value   = tmp;
+      convert();
+    }
+
+    // 輸入防抖 300ms
+    function debouncedConvert() {
+      clearTimeout(convertTimer);
+      convertTimer = setTimeout(convert, 300);
+    }
+
+    document.getElementById('from-currency').addEventListener('change', convert);
+    document.getElementById('to-currency').addEventListener('change', convert);
+    document.getElementById('amount').addEventListener('input', debouncedConvert);
+
+    // 初始執行
+    convert();
+  </script>
+</body>
+</html>

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>番茄鐘</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Notion Sans TC', 'Noto Sans TC', -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 20px;
+      transition: background 0.6s ease;
+      color: #fff;
+    }
+
+    .widget {
+      width: 100%;
+      max-width: 300px;
+      text-align: center;
+    }
+
+    /* ── 番茄圖示 ── */
+    .tomato-icon {
+      font-size: 36px;
+      display: block;
+      margin-bottom: 6px;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2));
+    }
+
+    .mode-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.8;
+      margin-bottom: 24px;
+    }
+
+    /* ── 圓形計時器 ── */
+    .timer-wrap {
+      position: relative;
+      width: 190px;
+      height: 190px;
+      margin: 0 auto 20px;
+    }
+
+    .timer-svg {
+      transform: rotate(-90deg);
+      width: 190px;
+      height: 190px;
+    }
+
+    .ring-bg {
+      fill: none;
+      stroke: rgba(255,255,255,0.18);
+      stroke-width: 9;
+    }
+
+    .ring-progress {
+      fill: none;
+      stroke: rgba(255,255,255,0.92);
+      stroke-width: 9;
+      stroke-linecap: round;
+      stroke-dasharray: 535.07; /* 2π × 85 */
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s linear;
+    }
+
+    .timer-inner {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timer-time {
+      font-size: 46px;
+      font-weight: 700;
+      letter-spacing: -2px;
+      line-height: 1;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+
+    .timer-sub {
+      font-size: 11px;
+      opacity: 0.65;
+      margin-top: 5px;
+      font-weight: 400;
+    }
+
+    /* ── 番茄進度點 ── */
+    .dots {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .dot.done   { background: rgba(255,255,255,0.9); }
+    .dot.active { background: rgba(255,255,255,0.6); transform: scale(1.2); }
+
+    /* ── 休息提示 ── */
+    .break-msg {
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 13.5px;
+      line-height: 1.7;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .break-msg.show { display: block; }
+
+    /* ── 按鈕 ── */
+    .controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    .btn-main {
+      padding: 11px 30px;
+      background: #fff;
+      border: none;
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-main:hover  { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,0.22); }
+    .btn-main:active { transform: translateY(0); }
+
+    .btn-icon {
+      width: 42px;
+      height: 42px;
+      background: rgba(255,255,255,0.18);
+      border: none;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+      color: #fff;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-icon:hover { background: rgba(255,255,255,0.28); }
+
+    /* ── 設定 ── */
+    .settings-toggle {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.5);
+      font-family: inherit;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 4px 8px;
+      transition: color 0.15s;
+      margin-bottom: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .settings-toggle:hover { color: rgba(255,255,255,0.85); }
+
+    .settings-panel {
+      background: rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: none;
+      text-align: left;
+    }
+
+    .settings-panel.open { display: block; }
+
+    .s-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .s-row:last-child { border-bottom: none; }
+
+    .s-label {
+      font-size: 13px;
+      opacity: 0.85;
+    }
+
+    .s-right {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .s-input {
+      width: 62px;
+      padding: 5px 8px;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 8px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      outline: none;
+    }
+
+    .s-input:focus {
+      background: rgba(255,255,255,0.28);
+      border-color: rgba(255,255,255,0.5);
+    }
+
+    .s-unit { font-size: 12px; opacity: 0.65; }
+  </style>
+</head>
+<body>
+  <div class="widget">
+    <span class="tomato-icon" id="mode-icon">🍅</span>
+    <div class="mode-label" id="mode-label">番茄時間</div>
+
+    <div class="timer-wrap">
+      <svg class="timer-svg" viewBox="0 0 190 190">
+        <circle class="ring-bg" cx="95" cy="95" r="85"/>
+        <circle class="ring-progress" id="ring" cx="95" cy="95" r="85"/>
+      </svg>
+      <div class="timer-inner">
+        <div class="timer-time" id="timer-time">25:00</div>
+        <div class="timer-sub"  id="timer-sub">第 1 個番茄</div>
+      </div>
+    </div>
+
+    <div class="dots" id="dots"></div>
+
+    <div class="break-msg" id="break-msg">
+      🚶 起來走動一下！<br>
+      💧 喝杯水，讓眼睛休息一下 ☀️
+    </div>
+
+    <div class="controls">
+      <button class="btn-main" id="btn-start" onclick="toggleTimer()">開始</button>
+      <button class="btn-icon" onclick="resetTimer()" title="重置">↺</button>
+      <button class="btn-icon" onclick="skipSession()" title="跳過">⏭</button>
+    </div>
+
+    <button class="settings-toggle" onclick="toggleSettings()">⚙ 調整時間</button>
+
+    <div class="settings-panel" id="settings-panel">
+      <div class="s-row">
+        <span class="s-label">🍅 番茄時間</span>
+        <div class="s-right">
+          <input type="number" class="s-input" id="s-work"  value="25" min="1" max="90">
+          <span class="s-unit">分</span>
+        </div>
+      </div>
+      <div class="s-row">
+        <span class="s-label">☕ 短休息</span>
+        <div class="s-right">
+          <input type="number" class="s-input" id="s-short" value="5"  min="1" max="30">
+          <span class="s-unit">分</span>
+        </div>
+      </div>
+      <div class="s-row">
+        <span class="s-label">🛋 長休息</span>
+        <div class="s-right">
+          <input type="number" class="s-input" id="s-long"  value="15" min="5" max="60">
+          <span class="s-unit">分</span>
+        </div>
+      </div>
+      <div class="s-row">
+        <span class="s-label">每幾個番茄後長休息</span>
+        <div class="s-right">
+          <input type="number" class="s-input" id="s-cycle" value="4"  min="2" max="8">
+          <span class="s-unit">個</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ── 主題色 ── */
+    const THEMES = {
+      work:  { bg: 'linear-gradient(145deg,#E74C3C,#B03A2E)', btnColor: '#C0392B', icon: '🍅', label: '番茄時間' },
+      short: { bg: 'linear-gradient(145deg,#27AE60,#1A7A45)', btnColor: '#1E8449', icon: '☕', label: '短休息' },
+      long:  { bg: 'linear-gradient(145deg,#E67E22,#B85C10)', btnColor: '#CA6F1E', icon: '🛋', label: '長休息' }
+    };
+
+    const CIRCUMFERENCE = 2 * Math.PI * 85; // ≈ 534.07
+
+    let mode          = 'work';
+    let running       = false;
+    let tickInterval  = null;
+    let totalSec      = 0;
+    let remainSec     = 0;
+    let doneCount     = 0; // 完成的番茄數
+
+    /* ── 讀取設定 ── */
+    function cfg() {
+      return {
+        work:  parseInt(document.getElementById('s-work').value)  || 25,
+        short: parseInt(document.getElementById('s-short').value) || 5,
+        long:  parseInt(document.getElementById('s-long').value)  || 15,
+        cycle: parseInt(document.getElementById('s-cycle').value) || 4
+      };
+    }
+
+    /* ── 切換模式 ── */
+    function setMode(m) {
+      mode = m;
+      const c = cfg();
+      totalSec  = (m === 'work' ? c.work : m === 'short' ? c.short : c.long) * 60;
+      remainSec = totalSec;
+
+      const t = THEMES[m];
+      document.body.style.background            = t.bg;
+      document.getElementById('mode-icon').textContent  = t.icon;
+      document.getElementById('mode-label').textContent = t.label.toUpperCase();
+      document.getElementById('btn-start').style.color  = t.btnColor;
+
+      // 長休息提示
+      document.getElementById('break-msg').classList.toggle('show', m === 'long');
+
+      render();
+    }
+
+    /* ── 渲染畫面 ── */
+    function render() {
+      // 時間
+      const mm = String(Math.floor(remainSec / 60)).padStart(2, '0');
+      const ss = String(remainSec % 60).padStart(2, '0');
+      document.getElementById('timer-time').textContent = `${mm}:${ss}`;
+
+      // 副標
+      document.getElementById('timer-sub').textContent =
+        mode === 'work'
+          ? `第 ${doneCount + 1} 個番茄`
+          : `已完成 ${doneCount} 個番茄`;
+
+      // 進度環
+      const pct    = totalSec > 0 ? remainSec / totalSec : 1;
+      const offset = CIRCUMFERENCE * (1 - pct);
+      document.getElementById('ring').style.strokeDashoffset = offset;
+
+      // 番茄點
+      renderDots();
+
+      // 分頁標題
+      document.title = `${mm}:${ss} · ${THEMES[mode].label}`;
+    }
+
+    function renderDots() {
+      const c   = cfg();
+      const pos = doneCount % c.cycle;
+      const el  = document.getElementById('dots');
+      el.innerHTML = '';
+      for (let i = 0; i < c.cycle; i++) {
+        const d = document.createElement('div');
+        d.className = 'dot' + (i < pos ? ' done' : i === pos && mode === 'work' ? ' active' : '');
+        el.appendChild(d);
+      }
+    }
+
+    /* ── 控制 ── */
+    function toggleTimer() {
+      if (running) {
+        clearInterval(tickInterval);
+        running = false;
+        document.getElementById('btn-start').textContent = '繼續';
+      } else {
+        running = true;
+        document.getElementById('btn-start').textContent = '暫停';
+        tickInterval = setInterval(tick, 1000);
+      }
+    }
+
+    function tick() {
+      if (remainSec <= 0) return;
+      remainSec--;
+      render();
+      if (remainSec <= 0) {
+        clearInterval(tickInterval);
+        running = false;
+        document.getElementById('btn-start').textContent = '開始';
+        playSound();
+        nextSession();
+      }
+    }
+
+    function nextSession() {
+      const c = cfg();
+      if (mode === 'work') {
+        doneCount++;
+        setMode(doneCount % c.cycle === 0 ? 'long' : 'short');
+      } else {
+        setMode('work');
+      }
+    }
+
+    function skipSession() {
+      clearInterval(tickInterval);
+      running = false;
+      document.getElementById('btn-start').textContent = '開始';
+      nextSession();
+    }
+
+    function resetTimer() {
+      clearInterval(tickInterval);
+      running    = false;
+      doneCount  = 0;
+      document.getElementById('btn-start').textContent = '開始';
+      setMode('work');
+    }
+
+    function toggleSettings() {
+      document.getElementById('settings-panel').classList.toggle('open');
+    }
+
+    /* ── 設定變更：未啟動時即時更新 ── */
+    ['s-work','s-short','s-long','s-cycle'].forEach(id => {
+      document.getElementById(id).addEventListener('change', () => {
+        if (!running) setMode(mode);
+        else renderDots(); // cycle 改變時更新點
+      });
+    });
+
+    /* ── 音效（Web Audio API） ── */
+    function playSound() {
+      try {
+        const ctx  = new (window.AudioContext || window.webkitAudioContext)();
+        const dings = mode === 'work'
+          ? [{ f: 1047, t: 0 }, { f: 1319, t: 0.25 }, { f: 1568, t: 0.5 }]  // 開始休息：上揚三音
+          : [{ f: 1568, t: 0 }, { f: 1319, t: 0.25 }, { f: 1047, t: 0.5 }]; // 回來工作：下降三音
+
+        dings.forEach(({ f, t }) => {
+          const osc  = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type = 'sine';
+          osc.frequency.value = f;
+          gain.gain.setValueAtTime(0, ctx.currentTime + t);
+          gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + t + 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.7);
+          osc.start(ctx.currentTime + t);
+          osc.stop(ctx.currentTime  + t + 0.8);
+        });
+      } catch (_) {}
+    }
+
+    /* ── 初始化 ── */
+    setMode('work');
+  </script>
+</body>
+</html>
