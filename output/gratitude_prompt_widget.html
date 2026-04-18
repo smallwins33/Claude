@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>感恩引導問題</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans TC', -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: #fdf8f3;
+    }
+
+    .widget {
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+    }
+
+    /* ── Header ── */
+    .header {
+      margin-bottom: 20px;
+    }
+
+    .icon {
+      font-size: 32px;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: #b08060;
+      text-transform: uppercase;
+    }
+
+    /* ── Category Badge ── */
+    .category-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .category-badge.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Category colors */
+    .cat-1 { background: #fde8d8; color: #c0663a; }
+    .cat-2 { background: #dff0e8; color: #3a8a6a; }
+    .cat-3 { background: #e4dff5; color: #6a4ab0; }
+    .cat-4 { background: #fdf3d0; color: #a07820; }
+    .cat-5 { background: #fcdce0; color: #b04050; }
+
+    /* ── Question Card ── */
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 24px;
+      min-height: 130px;
+      box-shadow: 0 2px 16px rgba(180,140,100,0.10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: 16px 16px 0 0;
+      background: linear-gradient(90deg, #f0c080, #d08060);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .card.has-question::before {
+      opacity: 1;
+    }
+
+    .card.has-question {
+      box-shadow: 0 4px 24px rgba(180,140,100,0.16);
+    }
+
+    .question-text {
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.8;
+      color: #3a3020;
+      letter-spacing: 0.03em;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+
+    .question-text.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .placeholder-text {
+      font-size: 13px;
+      color: #c0aa90;
+      line-height: 1.7;
+      letter-spacing: 0.02em;
+    }
+
+    /* ── Counter ── */
+    .counter {
+      font-size: 11px;
+      color: #c0aa90;
+      margin-bottom: 16px;
+      height: 16px;
+      transition: opacity 0.3s ease;
+    }
+
+    /* ── Button ── */
+    .btn-wrap {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .btn:active {
+      transform: scale(0.96);
+    }
+
+    .btn-main {
+      background: linear-gradient(135deg, #e8a870, #c07048);
+      color: #fff;
+      font-size: 13px;
+      padding: 12px 24px;
+      box-shadow: 0 3px 12px rgba(192,112,72,0.35);
+      flex: 1;
+      max-width: 200px;
+    }
+
+    .btn-main:hover {
+      background: linear-gradient(135deg, #eebc88, #cf8060);
+      box-shadow: 0 4px 16px rgba(192,112,72,0.45);
+      transform: translateY(-1px);
+    }
+
+    .btn-copy {
+      background: #f0ebe4;
+      color: #907060;
+      font-size: 12px;
+      padding: 12px 16px;
+      display: none;
+    }
+
+    .btn-copy:hover {
+      background: #e8e0d8;
+      color: #705040;
+    }
+
+    .btn-copy.show {
+      display: block;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 18px;
+      font-size: 10px;
+      color: #d0c0a8;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Copy toast ── */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #3a3020;
+      color: #fff;
+      font-size: 12px;
+      padding: 8px 18px;
+      border-radius: 20px;
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Shake animation ── */
+    @keyframes shake {
+      0%, 100% { transform: rotate(0deg); }
+      20% { transform: rotate(-8deg); }
+      40% { transform: rotate(8deg); }
+      60% { transform: rotate(-5deg); }
+      80% { transform: rotate(5deg); }
+    }
+
+    .shake { animation: shake 0.4s ease; }
+
+    /* ── Fade in animation ── */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="widget">
+    <div class="header">
+      <span class="icon">🌿</span>
+      <div class="title">感恩引導問題</div>
+    </div>
+
+    <div class="category-badge" id="categoryBadge"></div>
+
+    <div class="card" id="card">
+      <div class="placeholder-text" id="placeholder">
+        不知道要寫什麼嗎？<br>按下按鈕，獲得今天的引導問題 ✨
+      </div>
+      <div class="question-text" id="questionText"></div>
+    </div>
+
+
+    <div class="btn-wrap">
+      <button class="btn btn-main" id="btnRandom" onclick="drawQuestion()">
+        ✦ 隨機一題
+      </button>
+      <button class="btn btn-copy" id="btnCopy" onclick="copyQuestion()">
+        複製
+      </button>
+    </div>
+
+    <div class="footer">50 個問題 · 五大主題</div>
+  </div>
+
+  <div class="toast" id="toast">已複製到剪貼板 ✓</div>
+
+  <script>
+    const QUESTIONS = [
+      // 第一類：微小感官與日常
+      { cat: 1, label: '微小感官與日常', q: '今天的哪一道食物或飲料的滋味讓你感到幸福？' },
+      { cat: 1, label: '微小感官與日常', q: '剛才走路時，有沒有哪個路人的動作、穿搭或神情讓你覺得有趣？' },
+      { cat: 1, label: '微小感官與日常', q: '描述一個今天讓你覺得舒服的聲音（如音樂、風聲、咖啡機聲）。' },
+      { cat: 1, label: '微小感官與日常', q: '今天天氣如何？陽光、雨水或風有沒有帶給你什麼獨特的感受？' },
+      { cat: 1, label: '微小感官與日常', q: '寫下一件今天讓你覺得「觸感很好」的東西（如被窩、寵物的毛、乾淨的衣物）。' },
+      { cat: 1, label: '微小感官與日常', q: '今天在通勤或移動的路上，有沒有發現什麼平常沒注意到的街景？' },
+      { cat: 1, label: '微小感官與日常', q: '描述一個今天聞到的好味道。' },
+      { cat: 1, label: '微小感官與日常', q: '寫下一件讓你覺得「活在現代真方便」的小事。' },
+      { cat: 1, label: '微小感官與日常', q: '今天有沒有哪個空間讓你覺得待著很自在、很有安全感？' },
+      { cat: 1, label: '微小感官與日常', q: '分享一個今天你在休息時感受到的寧靜時刻。' },
+
+      // 第二類：人際與連結
+      { cat: 2, label: '人際與連結', q: '今天的對話中，哪一句話讓你感到被理解或支持？' },
+      { cat: 2, label: '人際與連結', q: '感謝一位今天提供你服務的人（如店員、司機、外送員）。' },
+      { cat: 2, label: '人際與連結', q: '想起一位很久沒見但曾對你有過正面影響的人，你想感謝他什麼？' },
+      { cat: 2, label: '人際與連結', q: '今天有誰對你微笑或展現善意了嗎？' },
+      { cat: 2, label: '人際與連結', q: '寫下一個你觀察到的、發生在別人身上的溫馨小事。' },
+      { cat: 2, label: '人際與連結', q: '感謝一位工作或學業上的夥伴，他幫你減輕了什麼負擔？' },
+      { cat: 2, label: '人際與連結', q: '今天有沒有收到任何訊息或郵件讓你覺得窩心？' },
+      { cat: 2, label: '人際與連結', q: '寫下一個你今天想對某人表達但還沒說出口的謝意。' },
+      { cat: 2, label: '人際與連結', q: '感謝一個在你生命中默默支持你的家人或朋友。' },
+      { cat: 2, label: '人際與連結', q: '今天你有沒有幫助別人？感謝自己擁有能給予的能力。' },
+
+      // 第三類：自我與成長
+      { cat: 3, label: '自我與成長', q: '今天你為自己的健康做了哪一件好事？' },
+      { cat: 3, label: '自我與成長', q: '寫下一件你今天雖然不想做、但還是完成了的事情。' },
+      { cat: 3, label: '自我與成長', q: '感謝自己擁有的一個天賦或技能。' },
+      { cat: 3, label: '自我與成長', q: '今天你在哪一個瞬間覺得自己很有力量或很有自信？' },
+      { cat: 3, label: '自我與成長', q: '寫下一個你最近克服的小困難或煩惱。' },
+      { cat: 3, label: '自我與成長', q: '感謝你的身體今天運作正常，支撐你完成了什麼活動？' },
+      { cat: 3, label: '自我與成長', q: '今天你有沒有學到一個冷知識或新技巧？' },
+      { cat: 3, label: '自我與成長', q: '寫下一個你對未來的期許，並感謝自己正在努力中。' },
+      { cat: 3, label: '自我與成長', q: '感謝一個你曾經犯下的錯，因為它教會了你什麼。' },
+      { cat: 3, label: '自我與成長', q: '寫下一件你對自己外貌或內在感到自豪的地方。' },
+
+      // 第四類：物質與環境
+      { cat: 4, label: '物質與環境', q: '感謝一件你擁有的工具（手機、電腦、筆記本），它如何讓你的生活更好？' },
+      { cat: 4, label: '物質與環境', q: '寫下一件你最近買到、覺得物超所值的東西。' },
+      { cat: 4, label: '物質與環境', q: '感謝你目前居住的空間，它為你遮蔽了什麼？' },
+      { cat: 4, label: '物質與環境', q: '寫下一本讀過或看過的書／電影，感謝它帶給你的啟發。' },
+      { cat: 4, label: '物質與環境', q: '感謝大自然中的一個元素（綠樹、天空、花朵）。' },
+      { cat: 4, label: '物質與環境', q: '今天有沒有什麼東西壞了或是差點弄丟，最後虛驚一場？' },
+      { cat: 4, label: '物質與環境', q: '寫下一件讓你覺得生活很有安全感的公共設施（如路燈、乾淨的廁所）。' },
+      { cat: 4, label: '物質與環境', q: '感謝一段你喜歡的音樂，它在什麼時候拯救了你的心情？' },
+      { cat: 4, label: '物質與環境', q: '寫下一件能讓你感到放鬆的家具或角落。' },
+      { cat: 4, label: '物質與環境', q: '感謝你所處的環境中，某個運作順暢的系統（如穩定的網路、準點的公車）。' },
+
+      // 第五類：意料之外與負面轉化
+      { cat: 5, label: '意料之外與負面轉化', q: '今天有沒有發生什麼「因禍得福」的事？' },
+      { cat: 5, label: '意料之外與負面轉化', q: '寫下一件今天原本讓你煩躁，但現在想起來其實沒那麼糟的事。' },
+      { cat: 5, label: '意料之外與負面轉化', q: '感謝一個你今天拒絕掉的請求，因為你守住了自己的邊界。' },
+      { cat: 5, label: '意料之外與負面轉化', q: '今天有沒有什麼突發的小驚喜（如發票中獎、撿到錢、多了一份贈品）？' },
+      { cat: 5, label: '意料之外與負面轉化', q: '寫下一件讓你覺得「自己真的很幸運」的事。' },
+      { cat: 5, label: '意料之外與負面轉化', q: '感謝一個今天對你提出挑戰的人或事，讓你有了思考的機會。' },
+      { cat: 5, label: '意料之外與負面轉化', q: '寫下一件你原本以為會很難，結果順利完成的事。' },
+      { cat: 5, label: '意料之外與負面轉化', q: '今天有沒有哪一刻讓你放聲大笑？' },
+      { cat: 5, label: '意料之外與負面轉化', q: '感謝一段讓你休息的時間，即使只有五分鐘。' },
+      { cat: 5, label: '意料之外與負面轉化', q: '閉上眼睛想一件事：如果明天醒來這世界少了它會很麻煩。寫下對它的感謝。' },
+    ];
+
+    const CAT_COLORS = { 1: 'cat-1', 2: 'cat-2', 3: 'cat-3', 4: 'cat-4', 5: 'cat-5' };
+
+    let history = [];
+    let currentQuestion = null;
+
+    function drawQuestion() {
+      const btn = document.getElementById('btnRandom');
+
+      // Reset available pool (exclude recent 5 to avoid repeats)
+      const recentIds = history.slice(-5);
+      const pool = QUESTIONS.filter((_, i) => !recentIds.includes(i));
+      const idx = Math.floor(Math.random() * pool.length);
+      const chosen = pool[idx];
+      const realIdx = QUESTIONS.indexOf(chosen);
+
+      history.push(realIdx);
+      if (history.length > 50) history = history.slice(-50);
+      currentQuestion = chosen;
+
+      // Shake button
+      btn.classList.remove('shake');
+      void btn.offsetWidth;
+      btn.classList.add('shake');
+      setTimeout(() => btn.classList.remove('shake'), 400);
+
+      // Update UI
+      showQuestion(chosen);
+    }
+
+    function showQuestion(item) {
+      const card = document.getElementById('card');
+      const placeholder = document.getElementById('placeholder');
+      const questionText = document.getElementById('questionText');
+      const badge = document.getElementById('categoryBadge');
+      const btnCopy = document.getElementById('btnCopy');
+
+      // Hide current question
+      questionText.classList.remove('visible');
+      badge.classList.remove('visible');
+
+      setTimeout(() => {
+        // Set content
+        placeholder.style.display = 'none';
+        questionText.textContent = item.q;
+        card.classList.add('has-question');
+
+        // Set badge
+        badge.textContent = item.label;
+        badge.className = 'category-badge ' + CAT_COLORS[item.cat];
+
+
+        // Show
+        questionText.classList.add('visible');
+        badge.classList.add('visible');
+        btnCopy.classList.add('show');
+      }, 150);
+    }
+
+    function copyQuestion() {
+      if (!currentQuestion) return;
+      navigator.clipboard.writeText(currentQuestion.q).then(() => {
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2000);
+      });
+    }
+  </script>
+</body>
+</html>
