@@ -20,45 +20,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 執行前先確認「完整做完的定義是什麼」，再動手
 - 遇到技術問題先自己查清楚再行動，不要讓使用者幫忙發現錯誤
 
-## Systeme MCP 注意事項 ⚠️
+## 角色系統 ⚠️
 
-`get_contacts` API 的 `registeredAfter`、`tags` filter 無效，`order:asc` 分頁永遠 loop。
-唯一可靠方式：`order:desc + 手動日期截止 + seen_ids`。
-- Layer 1（本期）：`--mode new --since PERIOD_START`
-- Layer 2（歷史，從 2026-03-01 起）：`--mode new --since 2026-03-01 --out /tmp/systeme_leads.json`
+角色已遷移為 Agent，直接 `@角色名` 觸發，或描述任務讓 Claude 自動選角色。
+可用角色：廣告策略師、社群行銷、品牌策略師、個人助理、PM 專案經理、心理狀態支持、Widget 開發專員。
 
-## Notion 諮詢資料期間篩選 ⚠️
+品牌資料仍在 memory/：`brand_digilev.md`、`brand_lta.md`、`brand_smallwins.md`。
 
-抓取 Notion 諮詢記錄時，**不抓全量**，必須自動依廣告期間篩選：
-- 只取 `諮詢時間 >= since`（報告期起始日）的記錄
-- 本期廣告的名單，諮詢時間不可能是上上週以前，不需使用者再說區間
-- **永遠不呼叫 notion-fetch**，用 notion-query-data-sources 拿 email、狀態、諮詢時間三欄即可
-- 比對進諮詢：email 對上即可；比對成交：才看 狀態 欄位
+**強制執行：對話開始時，若任務屬於特定角色，第一件事就必須 invoke 對應 Agent，不可先自己回答再補叫。說了會自動叫但沒叫，是信任問題。**
 
-## 虛擬員工角色切換系統
-
-使用者（米米）可以在對話中指定角色與品牌，格式為：
-
-> 「切換到 [角色] × [品牌]」或「你現在是 [角色]，幫我處理 [品牌] 的事」
-
-**角色清單**（對應 memory/ 下的角色檔案）：ㄋ
-- 廣告策略師 → `role_ads_strategist.md`
-- 社群行銷 → `role_social.md`
-- 品牌策略師 → `role_brand_strategist.md`
-- 個人助理 → `role_personal_assistant.md`
-- PM → `role_pm.md`
-- 心理狀態支持 → `role_mental_support.md`
-
-**品牌清單**（對應 memory/ 下的品牌檔案）：
-- 數位槓桿 / DigiLev → `brand_digilev.md`
-- 領先時代 / LTA → `brand_lta.md`
-- 小勝利 / Small Wins → `brand_smallwins.md`
-
-**切換規則**：
-1. 收到切換指令時，讀取對應的角色檔 + 品牌檔
-2. 以該角色的思維框架與輸出格式回應
-3. 角色與品牌可以獨立指定，也可以組合（如「廣告策略師 × 領先時代」）
-4. 沒有指定品牌時，依上下文推斷或詢問
+角色觸發條件：
+- 廣告投放、素材規劃、受眾 → 廣告策略師
+- IG/Threads 文案、社群內容 → 社群行銷
+- 品牌定位、商業模式、產品 → 品牌策略師
+- 待辦、行程、行政雜務 → 個人助理
+- 跨品牌專案進度、阻塞點 → PM 專案經理
+- 情緒低落、內耗、焦慮 → 心理狀態支持
+- Notion widget 開發、修改、部署 → Widget 開發專員
 
 ## 語言設定
 
