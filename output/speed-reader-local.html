@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Speed Reader — Karaoke TTS</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #111113;
+    --surface: #1c1c1f;
+    --border: #2e2e32;
+    --text: #e8e8ea;
+    --muted: #6b6b75;
+    --accent: #7c6ff7;
+    --accent-light: #1e1b3a;
+    --highlight-bg: #f59e0b;
+    --highlight-text: #111113;
+    --played-color: #6b6b75;
+    --radius: 12px;
+    --shadow: 0 1px 4px rgba(0,0,0,0.4);
+  }
+
+  body {
+    font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 780px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  header {
+    text-align: center;
+  }
+
+  header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text);
+  }
+
+  header p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .status-step {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .card-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+
+  /* Settings row */
+  .settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+
+  .field input,
+  .field select {
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  .field input:focus,
+  .field select:focus {
+    border-color: var(--accent);
+  }
+
+  .field.full {
+    grid-column: 1 / -1;
+  }
+
+  /* Textarea */
+  textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--bg);
+    resize: vertical;
+    min-height: 120px;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.6;
+  }
+
+  textarea:focus {
+    border-color: var(--accent);
+  }
+
+  /* Karaoke display */
+  .karaoke-area {
+    min-height: 180px;
+    line-height: 2;
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    word-spacing: 0.05em;
+    padding: 16px;
+    border-radius: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    user-select: none;
+  }
+
+  .karaoke-area .word {
+    display: inline;
+    position: relative;
+    border-radius: 3px;
+    transition: background-color 0.08s, color 0.08s;
+    cursor: default;
+  }
+
+  .karaoke-area .word.played {
+    color: var(--played-color);
+  }
+
+  .karaoke-area .word.active {
+    background-color: var(--highlight-bg);
+    color: var(--highlight-text);
+    border-radius: 4px;
+    padding: 0 2px;
+  }
+
+  .karaoke-area .space {
+    display: inline;
+  }
+
+  .karaoke-placeholder {
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 140px;
+    text-align: center;
+    line-height: 1.8;
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .progress-bar-track {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+
+  .progress-time {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+    min-width: 48px;
+    text-align: right;
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: #4338ca;
+  }
+
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--bg);
+  }
+
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .btn-generate {
+    width: 100%;
+    margin-top: 4px;
+    padding: 12px;
+    font-size: 15px;
+  }
+
+  /* Status */
+  .status-bar {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+    min-height: 20px;
+  }
+
+  .status-bar.error {
+    color: #dc2626;
+  }
+
+  .status-bar.loading {
+    color: var(--accent);
+  }
+
+  /* Loading spinner inline */
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(79,70,229,0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Divider */
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 4px 0;
+  }
+
+  /* Scroll to active word */
+  .karaoke-area {
+    overflow-y: auto;
+    max-height: 340px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Speed Reader</h1>
+    <p>Deepgram Aura TTS + Karaoke highlight</p>
+  </header>
+
+  <!-- Settings -->
+  <div class="card">
+    <div class="card-title">設定</div>
+    <div class="settings-grid">
+      <div class="field">
+        <label>語音</label>
+        <select id="voiceSelect">
+          <option value="aura-2-athena-en">Athena（女，calm, smooth, professional）</option>
+          <option value="aura-2-cora-en">Cora（女，smooth, melodic, caring）</option>
+          <option value="aura-2-cordelia-en">Cordelia（女，approachable, warm, polite）</option>
+          <option value="aura-2-hera-en">Hera（女，smooth, warm, professional）</option>
+          <option value="aura-2-janus-en">Janus（女，southern, smooth, trustworthy）</option>
+          <option value="aura-2-draco-en">Draco（男 British，warm, baritone）</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>語速</label>
+        <select id="speedSelect">
+          <option value="0.75">慢速 0.75x</option>
+          <option value="1.0" selected>正常 1.0x</option>
+          <option value="1.15">稍快 1.15x</option>
+          <option value="1.25">快速 1.25x</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input text -->
+  <div class="card">
+    <div class="card-title">輸入文字</div>
+    <textarea id="inputText" placeholder="在這裡貼上要朗讀的文字...&#10;&#10;例：The quick brown fox jumps over the lazy dog."></textarea>
+    <button class="btn btn-primary btn-generate" id="generateBtn" onclick="generate()">
+      產生語音
+    </button>
+  </div>
+
+  <!-- Karaoke display -->
+  <div class="card">
+    <div class="card-title">Karaoke 顯示</div>
+    <div class="karaoke-area" id="karaokeArea">
+      <div class="karaoke-placeholder">輸入文字並產生語音後，文字會顯示在這裡，<br>播放時會跟著朗讀進度 highlight。</div>
+    </div>
+
+    <div style="margin-top: 16px;">
+      <div class="progress-wrap">
+        <div class="progress-bar-track" id="progressTrack" onclick="seekByClick(event)">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-time" id="progressTime">0:00</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 14px;" class="controls">
+      <button class="btn btn-secondary" id="resetBtn" onclick="reset()" disabled>重置</button>
+      <button class="btn btn-primary" id="playBtn" onclick="togglePlay()" disabled>播放</button>
+    </div>
+
+    <div class="status-bar" id="statusBar" style="margin-top: 12px;"></div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// Config
+// ============================================================
+const DEEPGRAM_API_KEY = '3f4206f36849d4c59cf7c91e73bc1fa019daaf32';
+
+// ============================================================
+// State
+// ============================================================
+let audioCtx = null;
+let audioBuffer = null;
+let sourceNode = null;
+let startedAt = 0;       // AudioContext time when playback began
+let pausedAt = 0;        // offset in buffer when paused
+let isPlaying = false;
+let duration = 0;
+let rafId = null;
+
+// Words with timing
+// wordTimings: [{text, startTime, endTime, el}]
+let wordTimings = [];
+let activeWordIdx = -1;
+
+// ============================================================
+// UI helpers
+// ============================================================
+function setStatus(msg, type = '') {
+  const el = document.getElementById('statusBar');
+  el.className = 'status-bar' + (type ? ' ' + type : '');
+  el.innerHTML = msg;
+}
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const ss = Math.floor(s % 60);
+  return `${m}:${ss.toString().padStart(2, '0')}`;
+}
+
+function setProgress(pct, current) {
+  document.getElementById('progressFill').style.width = (pct * 100).toFixed(2) + '%';
+  document.getElementById('progressTime').textContent = formatTime(current || 0);
+}
+
+// ============================================================
+// Generate — call Deepgram Aura TTS, then STT for word timestamps
+// ============================================================
+async function generate() {
+  const text = document.getElementById('inputText').value.trim();
+  const voiceModel = document.getElementById('voiceSelect').value;
+
+  if (!text) { setStatus('請先輸入文字。', 'error'); return; }
+
+  // Reset previous state
+  stopPlayback();
+  wordTimings = [];
+  activeWordIdx = -1;
+  audioBuffer = null;
+  document.getElementById('playBtn').disabled = true;
+  document.getElementById('resetBtn').disabled = true;
+  document.getElementById('karaokeArea').innerHTML = '<div class="karaoke-placeholder">產生中，請稍候...</div>';
+  setProgress(0, 0);
+
+  const generateBtn = document.getElementById('generateBtn');
+  generateBtn.disabled = true;
+  setStatus('<span class="spinner"></span>呼叫 Deepgram TTS 中...', 'loading');
+
+  try {
+    // ── Step 1: TTS ──────────────────────────────────────────
+    const ttsResp = await fetch(
+      `https://api.deepgram.com/v1/speak?model=${voiceModel}`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${DEEPGRAM_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ text: text })
+      }
+    );
+
+    if (!ttsResp.ok) {
+      const errText = await ttsResp.text();
+      let errMsg = `TTS API 錯誤 ${ttsResp.status}`;
+      try {
+        const errJson = JSON.parse(errText);
+        if (errJson.err_msg) errMsg += ': ' + errJson.err_msg;
+        else if (errJson.message) errMsg += ': ' + errJson.message;
+        else errMsg += ': ' + JSON.stringify(errJson);
+      } catch(_) { errMsg += ': ' + errText.slice(0, 120); }
+      throw new Error(errMsg);
+    }
+
+    // Deepgram TTS returns raw mp3 binary
+    const mp3ArrayBuffer = await ttsResp.arrayBuffer();
+
+    // Decode audio for Web Audio API playback
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // decodeAudioData consumes (detaches) the buffer, so clone first for STT
+    const mp3BufferForSTT = mp3ArrayBuffer.slice(0);
+    audioBuffer = await audioCtx.decodeAudioData(mp3ArrayBuffer);
+    duration = audioBuffer.duration;
+
+    setStatus('<span class="spinner"></span>語音生成完畢，分析時間軸中...', 'loading');
+
+    // ── Step 2: STT — get word-level timestamps ───────────────
+    let usedSTT = false;
+    try {
+      const sttResp = await fetch(
+        'https://api.deepgram.com/v1/listen?model=nova-2&punctuate=false&words=true',
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Token ${DEEPGRAM_API_KEY}`,
+            'Content-Type': 'audio/mp3'
+          },
+          body: new Blob([mp3BufferForSTT], { type: 'audio/mp3' })
+        }
+      );
+
+      if (sttResp.ok) {
+        const sttJson = await sttResp.json();
+        const words = sttJson?.results?.channels?.[0]?.alternatives?.[0]?.words;
+        if (words && words.length > 0) {
+          buildWordTimingsFromSTT(text, words);
+          usedSTT = true;
+        }
+      }
+    } catch (sttErr) {
+      // STT failed — will fallback to uniform below
+      console.warn('STT failed, falling back to uniform distribution:', sttErr);
+    }
+
+    // ── Fallback: uniform distribution ───────────────────────
+    if (!usedSTT) {
+      buildWordTimingsUniform(text);
+    }
+
+    // Render karaoke
+    renderKaraoke();
+
+    document.getElementById('playBtn').disabled = false;
+    document.getElementById('resetBtn').disabled = false;
+    setStatus('語音已準備好，點播放開始。');
+
+  } catch (err) {
+    setStatus('錯誤：' + err.message, 'error');
+    document.getElementById('karaokeArea').innerHTML = '<div class="karaoke-placeholder">產生失敗，請確認網路連線。</div>';
+  } finally {
+    generateBtn.disabled = false;
+  }
+}
+
+// ============================================================
+// Build word timings from Deepgram STT word timestamps
+// ============================================================
+function buildWordTimingsFromSTT(text, sttWords) {
+  const originalWords = text.split(/\s+/).filter(Boolean);
+
+  // If word counts match, pair directly; otherwise fallback to STT order only
+  if (sttWords.length === originalWords.length) {
+    wordTimings = originalWords.map((w, idx) => ({
+      text: w,
+      startTime: sttWords[idx].start,
+      endTime: sttWords[idx].end,
+      el: null
+    }));
+  } else {
+    // Count mismatch — use STT words as display text with their timestamps,
+    // then fallback to uniform for any remaining original words
+    if (sttWords.length >= originalWords.length * 0.7) {
+      // STT returned reasonable coverage — use STT words directly
+      wordTimings = sttWords.map(w => ({
+        text: w.word,
+        startTime: w.start,
+        endTime: w.end,
+        el: null
+      }));
+    } else {
+      // Too few STT words — fallback to uniform with original text
+      buildWordTimingsUniform(text);
+    }
+  }
+}
+
+// ============================================================
+// Build word timings — uniform distribution (Deepgram fallback)
+// ============================================================
+function buildWordTimingsUniform(text) {
+  const words = text.split(/\s+/).filter(Boolean);
+  const perWord = duration / words.length;
+  wordTimings = words.map((w, idx) => ({
+    text: w,
+    startTime: idx * perWord,
+    endTime: (idx + 1) * perWord,
+    el: null
+  }));
+}
+
+// ============================================================
+// Render karaoke DOM
+// ============================================================
+function renderKaraoke() {
+  const area = document.getElementById('karaokeArea');
+  area.innerHTML = '';
+
+  wordTimings.forEach((wt, idx) => {
+    if (idx > 0) {
+      const space = document.createElement('span');
+      space.className = 'space';
+      space.textContent = ' ';
+      area.appendChild(space);
+    }
+    const span = document.createElement('span');
+    span.className = 'word';
+    span.textContent = wt.text;
+    span.dataset.idx = idx;
+    area.appendChild(span);
+    wt.el = span;
+  });
+}
+
+// ============================================================
+// Playback
+// ============================================================
+function togglePlay() {
+  if (!audioBuffer) return;
+  if (isPlaying) {
+    pausePlayback();
+  } else {
+    startPlayback(pausedAt);
+  }
+}
+
+function startPlayback(offset = 0) {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  if (sourceNode) {
+    sourceNode.onended = null;
+    try { sourceNode.stop(); } catch(_) {}
+  }
+
+  sourceNode = audioCtx.createBufferSource();
+  sourceNode.buffer = audioBuffer;
+
+  // Apply speed via playbackRate
+  const speed = parseFloat(document.getElementById('speedSelect').value);
+  sourceNode.playbackRate.value = speed;
+
+  sourceNode.connect(audioCtx.destination);
+  sourceNode.start(0, offset);
+
+  startedAt = audioCtx.currentTime - offset / speed; // account for rate
+  isPlaying = true;
+  document.getElementById('playBtn').textContent = '暫停';
+
+  sourceNode.onended = () => {
+    // Natural end
+    if (isPlaying) {
+      isPlaying = false;
+      pausedAt = 0;
+      document.getElementById('playBtn').textContent = '播放';
+      setProgress(1, duration);
+      clearRaf();
+      highlightWord(wordTimings.length - 1); // keep last word highlighted
+      setStatus('播放完畢。');
+    }
+  };
+
+  startRaf();
+}
+
+function pausePlayback() {
+  if (!isPlaying) return;
+  const speed = parseFloat(document.getElementById('speedSelect').value);
+  pausedAt = (audioCtx.currentTime - startedAt) * speed;
+  sourceNode.onended = null;
+  try { sourceNode.stop(); } catch(_) {}
+  isPlaying = false;
+  document.getElementById('playBtn').textContent = '播放';
+  clearRaf();
+}
+
+function stopPlayback() {
+  if (sourceNode) {
+    sourceNode.onended = null;
+    try { sourceNode.stop(); } catch(_) {}
+    sourceNode = null;
+  }
+  isPlaying = false;
+  pausedAt = 0;
+  clearAllHighlights();
+  clearRaf();
+  setProgress(0, 0);
+  document.getElementById('playBtn').textContent = '播放';
+}
+
+function reset() {
+  stopPlayback();
+  activeWordIdx = -1;
+  document.getElementById('playBtn').disabled = !audioBuffer;
+  setStatus('');
+}
+
+// ============================================================
+// RAF loop — sync highlight
+// ============================================================
+function startRaf() {
+  clearRaf();
+  function tick() {
+    if (!isPlaying) return;
+    const speed = parseFloat(document.getElementById('speedSelect').value);
+    const elapsed = (audioCtx.currentTime - startedAt) * speed;
+    const pct = duration > 0 ? Math.min(elapsed / duration, 1) : 0;
+    setProgress(pct, elapsed);
+
+    // Find active word
+    let idx = -1;
+    for (let i = 0; i < wordTimings.length; i++) {
+      if (elapsed >= wordTimings[i].startTime) idx = i;
+      else break;
+    }
+
+    if (idx !== activeWordIdx) {
+      highlightWord(idx);
+      activeWordIdx = idx;
+    }
+
+    rafId = requestAnimationFrame(tick);
+  }
+  rafId = requestAnimationFrame(tick);
+}
+
+function clearRaf() {
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+}
+
+function clearAllHighlights() {
+  wordTimings.forEach(wt => {
+    if (wt.el) {
+      wt.el.classList.remove('active', 'played');
+    }
+  });
+}
+
+function highlightWord(idx) {
+  wordTimings.forEach((wt, i) => {
+    if (!wt.el) return;
+    if (i < idx) {
+      wt.el.classList.add('played');
+      wt.el.classList.remove('active');
+    } else if (i === idx) {
+      wt.el.classList.add('active');
+      wt.el.classList.remove('played');
+      // Scroll into view softly
+      wt.el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+      wt.el.classList.remove('active', 'played');
+    }
+  });
+}
+
+// ============================================================
+// Seek by clicking progress bar
+// ============================================================
+function seekByClick(e) {
+  if (!audioBuffer) return;
+  const track = document.getElementById('progressTrack');
+  const rect = track.getBoundingClientRect();
+  const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  const targetTime = pct * duration;
+
+  const wasPlaying = isPlaying;
+  if (isPlaying) {
+    sourceNode.onended = null;
+    try { sourceNode.stop(); } catch(_) {}
+    isPlaying = false;
+  }
+
+  pausedAt = targetTime;
+  clearAllHighlights();
+
+  // Set immediate highlight state
+  let idx = -1;
+  for (let i = 0; i < wordTimings.length; i++) {
+    if (targetTime >= wordTimings[i].startTime) idx = i;
+    else break;
+  }
+  highlightWord(idx);
+  activeWordIdx = idx;
+  setProgress(pct, targetTime);
+
+  if (wasPlaying) startPlayback(targetTime);
+}
+
+// Prevent AudioContext autoplay policy issue — resume on first user interaction
+document.addEventListener('click', () => {
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}, { once: false });
+</script>
+</body>
+</html>

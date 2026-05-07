@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390, initial-scale=1.0">
+<title>Notion 顧問業全球三大市場掃描報告（2025–2026）</title>
+<style>
+  :root {
+    --bg: #0f0f11;
+    --surface: #17171a;
+    --surface2: #1e1e23;
+    --border: #2a2a32;
+    --text: #e8e8f0;
+    --muted: #888898;
+    --accent: #7c6af7;
+    --accent-soft: #1e1b3a;
+    --green: #3ecf8e;
+    --green-soft: #0e2820;
+    --red: #f76c6c;
+    --red-soft: #2a1212;
+    --yellow: #f7c948;
+    --yellow-soft: #281f08;
+    --orange: #f7934c;
+    --orange-soft: #281a08;
+    --tag-bg: #23232c;
+  }
+
+  @page {
+    size: 390px auto;
+    margin: 0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans TC', 'PingFang TC', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.8;
+    width: 390px;
+    padding: 0 0 60px;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    background: linear-gradient(160deg, #0f0f11 0%, #1a1535 60%, #0f1a2a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 20px 40px;
+    text-align: center;
+  }
+  .hero .eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -.02em;
+    margin-bottom: 14px;
+  }
+  .hero .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.75;
+    margin-bottom: 24px;
+  }
+  .hero .thesis {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 16px 18px;
+    font-size: 13.5px;
+    color: #ccc;
+    text-align: left;
+    line-height: 1.8;
+  }
+  .hero .thesis strong { color: var(--text); }
+
+  /* ── Container ── */
+  .container { padding: 0 18px; }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    margin: 28px 0 0;
+  }
+  .toc h3 {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .toc ol { list-style: none; counter-reset: toc; padding: 0; }
+  .toc ol li {
+    counter-increment: toc;
+    padding: 5px 0;
+    font-size: 13px;
+    display: flex;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .toc ol li:last-child { border-bottom: none; }
+  .toc ol li::before {
+    content: counter(toc, decimal-leading-zero);
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 20px;
+    padding-top: 2px;
+  }
+  .toc ol li span { color: #ccc; }
+
+  /* ── Section ── */
+  section { padding: 44px 0 0; }
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  section > .container > h2 {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    margin-bottom: 4px;
+  }
+  .section-sub {
+    color: var(--muted);
+    font-size: 12.5px;
+    margin-bottom: 22px;
+  }
+
+  /* ── Stat grid — single col on mobile ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 12px;
+  }
+  .stat-card .val {
+    font-size: 19px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -.02em;
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  .stat-card .label { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+  /* ── Body text ── */
+  .prose {
+    color: #ccc;
+    line-height: 1.9;
+    margin-bottom: 24px;
+    font-size: 14px;
+  }
+  .prose strong { color: var(--text); font-weight: 700; }
+
+  /* ── Table ── */
+  .table-wrap {
+    overflow-x: auto;
+    margin-bottom: 28px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead tr { background: var(--surface2); }
+  thead th {
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody td { padding: 9px 12px; color: #ccc; vertical-align: top; }
+  tbody td:first-child { color: var(--text); font-weight: 600; white-space: nowrap; }
+  .highlight { color: var(--accent) !important; font-weight: 700; }
+
+  /* ── Quad cards — single col ── */
+  .quad-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+  .quad-card {
+    border-radius: 10px;
+    border: 1px solid;
+    padding: 16px 16px 14px;
+  }
+  .quad-card.growing  { background: var(--green-soft);  border-color: var(--green); }
+  .quad-card.declining{ background: var(--red-soft);    border-color: var(--red);   }
+  .quad-card.emerging { background: var(--yellow-soft); border-color: var(--yellow);}
+  .quad-card.abandon  { background: var(--orange-soft); border-color: var(--orange);}
+
+  .quad-card .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  .growing  .tag { background: var(--green);  color: #000; }
+  .declining .tag { background: var(--red);   color: #fff; }
+  .emerging  .tag { background: var(--yellow); color: #000; }
+  .abandon   .tag { background: var(--orange); color: #fff; }
+
+  .quad-card ul { list-style: none; padding: 0; }
+  .quad-card ul li {
+    font-size: 13.5px;
+    color: #ccc;
+    padding: 4px 0 4px 16px;
+    position: relative;
+    line-height: 1.55;
+  }
+  .quad-card ul li::before { content: '–'; position: absolute; left: 0; color: var(--muted); }
+
+  /* ── Market header ── */
+  .market-header { margin-bottom: 14px; }
+  .market-header .row1 { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .market-flag { font-size: 24px; line-height: 1; }
+  .market-header h3 { font-size: 18px; font-weight: 800; letter-spacing: -.02em; }
+  .market-header .badge {
+    display: inline-block;
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 11px;
+    color: var(--muted);
+    padding: 2px 10px;
+  }
+
+  /* ── Sub-market ── */
+  .sub-market {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 24px 0 10px;
+    flex-wrap: wrap;
+  }
+  .sub-market .flag { font-size: 18px; }
+  .sub-market h4 { font-size: 15px; font-weight: 700; }
+  .sub-market .badge {
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 10.5px;
+    color: var(--muted);
+    padding: 1px 9px;
+  }
+
+  /* ── Callout ── */
+  .callout {
+    background: var(--surface2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 16px;
+    margin: 20px 0 24px;
+    font-size: 13.5px;
+    color: #ccc;
+    line-height: 1.8;
+  }
+  .callout strong { color: var(--text); }
+
+  /* ── Divider ── */
+  hr { border: none; border-top: 1px solid var(--border); margin: 40px 0 0; }
+
+  /* ── Conclusion cards ── */
+  .conclusion-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+  .conclusion-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 18px;
+  }
+  .conclusion-card .num {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    opacity: .35;
+    letter-spacing: -.04em;
+    margin-bottom: 8px;
+  }
+  .conclusion-card h4 { font-size: 14.5px; font-weight: 700; margin-bottom: 8px; }
+  .conclusion-card p { font-size: 13px; color: #aaa; line-height: 1.75; }
+  .conclusion-card p strong { color: var(--text); }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 56px;
+    padding: 24px 18px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="eyebrow">市場掃描報告 · 2025–2026</div>
+  <h1>Notion 顧問業<br>全球三大市場</h1>
+  <p class="subtitle">整合 6 個多語言研究流・200+ 條一手資料<br>從成長、衰退、新興、應捨棄四個角度給出可執行的市場判斷</p>
+  <div class="thesis">
+    <strong>核心命題：</strong>Notion 顧問業正在分裂為兩個世界。上層的「企業 AI 工作流顧問」高速擴張，下層的「美學模板與 Notion 101 教學」加速死亡。這個分水嶺在 2025 年 9 月 18 日 Notion 3.0 推出自主 AI Agents 後，已<strong>不可逆</strong>。
+  </div>
+</div>
+
+<div class="container">
+  <div class="toc">
+    <h3>目錄</h3>
+    <ol>
+      <li><span>Notion 自身的市場引力場</span></li>
+      <li><span>全球可承載市場（TAM）</span></li>
+      <li><span>美國市場：金字塔極化加速</span></li>
+      <li><span>歐洲市場：GDPR 與 EU AI Act 重塑</span></li>
+      <li><span>亞洲市場：日韓的不對稱機會</span></li>
+      <li><span>AI 衝擊：四個顛覆向量</span></li>
+      <li><span>三個非共識結論</span></li>
+    </ol>
+  </div>
+</div>
+
+<!-- 01 -->
+<section>
+  <div class="container">
+    <div class="section-label">Part 01</div>
+    <h2>Notion 自身的市場引力場</h2>
+    <p class="section-sub">理解顧問業，必先理解 Notion 自身的成長速度</p>
+
+    <div class="stat-grid">
+      <div class="stat-card"><div class="val">$500M+</div><div class="label">ARR（2025.9，CNBC 確認）</div></div>
+      <div class="stat-card"><div class="val">$11B</div><div class="label">估值（2026.1 tender）</div></div>
+      <div class="stat-card"><div class="val">100M+</div><div class="label">用戶，跨 85 國</div></div>
+      <div class="stat-card"><div class="val">>50%</div><div class="label">ARR 來自 AI 啟用客戶</div></div>
+      <div class="stat-card"><div class="val">158家</div><div class="label">Solutions Partners（Apr 2026）</div></div>
+      <div class="stat-card"><div class="val">7.5×</div><div class="label">ARR 三年成長幅度</div></div>
+    </div>
+
+    <div class="prose">
+      <strong>地理結構出乎意料：</strong>美國 16.2%、<strong>韓國 11.98%（全球第二）</strong>、日本 10.86%、巴西 6.83%、法國 4.28%。超過 80% 用戶在美國境外。<br><br>
+      <strong>亞洲是 Notion 用戶滲透率最高的地理，但顧問供給最稀缺</strong>——日本僅 4 家認證代理、韓國「공식 컨설턴트」僅 2 人。<br><br>
+      Forrester Wave™ KM Solutions Q4 2024 評估 11 家供應商，<strong>Notion 完全未獲列入</strong>，Atlassian Confluence 才是 Leader。
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>指標</th><th>2022</th><th>2025 末</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>用戶數</td><td>~30M</td><td class="highlight">100M+</td></tr>
+          <tr><td>ARR</td><td>$67M</td><td class="highlight">$500M+</td></tr>
+          <tr><td>Fortune 500 採用</td><td>—</td><td class="highlight">&gt;50%</td></tr>
+          <tr><td>AI 客戶占 ARR</td><td>&lt;10%</td><td class="highlight">&gt;50%</td></tr>
+          <tr><td>估值</td><td>$10B</td><td class="highlight">$11B</td></tr>
+          <tr><td>認證合作夥伴</td><td>&lt;30</td><td class="highlight">158 家</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- 02 -->
+<section>
+  <div class="container">
+    <div class="section-label">Part 02</div>
+    <h2>全球可承載市場（TAM）</h2>
+    <p class="section-sub">四個交集的累加，而非單一市場</p>
+
+    <div class="stat-grid">
+      <div class="stat-card"><div class="val">$20–25B</div><div class="label">全球知識管理軟體市場（2025）</div></div>
+      <div class="stat-card"><div class="val">$34.7B</div><div class="label">全球 no-code/low-code（2025）</div></div>
+      <div class="stat-card"><div class="val">12–14%</div><div class="label">知識管理 CAGR</div></div>
+      <div class="stat-card"><div class="val">88%</div><div class="label">組織至少 1 職能使用 AI</div></div>
+    </div>
+
+    <div class="callout">
+      Gartner 預測 <strong>70% 新企業應用在 2025 年以低/無代碼建構</strong>。SaaS 顧問與導入服務達 $327.59B（Mordor 2025）。四市場加總，Notion 顧問業可定位 TAM 介於 <strong>$100–300B</strong>。
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- 03 US -->
+<section>
+  <div class="container">
+    <div class="market-header">
+      <div class="row1">
+        <span class="market-flag">🇺🇸</span>
+        <div>
+          <div class="section-label" style="margin-bottom:2px">Part 03</div>
+          <h3>美國市場</h3>
+        </div>
+      </div>
+      <span class="badge">競爭最成熟・AI 取代壓力最劇烈</span>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card"><div class="val">$175/hr</div><div class="label">美國平均時薪</div></div>
+      <div class="stat-card"><div class="val">$150–300+</div><div class="label">Expert-Vetted（前 1%）</div></div>
+      <div class="stat-card"><div class="val">$50K–150K</div><div class="label">企業級全範圍專案</div></div>
+      <div class="stat-card"><div class="val">346K+</div><div class="label">r/Notion 成員</div></div>
+    </div>
+
+    <div class="prose">
+      <strong>頂層 Agency 擴張：</strong>Notion State 服務 Affirm、Toyota、Mercury；Notioners 執行 100+ workspace，以「Custom AI Agents 整合」為核心；ZenPilot 累計 3,100+ 團隊。<br><br>
+      <strong>個人模板天花板收斂：</strong>Easlo 2024 年公開承認「競爭加劇必須調整商業模式」；Thomas Frank 已從 Notion 模板轉向 Flylighter SaaS——<strong>最大 Notion 創作者正在離開純 Notion 賽道</strong>。
+    </div>
+
+    <div class="quad-grid">
+      <div class="quad-card growing">
+        <div class="tag">📈 Growing</div>
+        <ul>
+          <li>企業 implementation（年單 $50K+）</li>
+          <li>AI Agent 設計顧問</li>
+          <li>垂直 OS（Sales OS、HIPAA clinic、Agency OS）</li>
+          <li>Retainer 訓練合約</li>
+        </ul>
+      </div>
+      <div class="quad-card declining">
+        <div class="tag">📉 Declining</div>
+        <ul>
+          <li>$30 以下泛用模板</li>
+          <li>Fiverr $25–200 gig</li>
+          <li>Notion 101 YouTube 純廣告變現</li>
+        </ul>
+      </div>
+      <div class="quad-card emerging">
+        <div class="tag">🌱 Emerging</div>
+        <ul>
+          <li>MCP 整合（Lovable/Perplexity/HubSpot）</li>
+          <li>從 Confluence/Coda/Asana 遷移代工</li>
+          <li>Notion Credits 預算優化顧問</li>
+        </ul>
+      </div>
+      <div class="quad-card abandon">
+        <div class="tag">🚫 Abandon</div>
+        <ul>
+          <li>時薪低於 $50 的 Upwork/Fiverr</li>
+          <li>純美觀 Notion 頁面（已商品化）</li>
+          <li>不附加自動化的純 Notion 顧問</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- 04 EU -->
+<section>
+  <div class="container">
+    <div class="market-header">
+      <div class="row1">
+        <span class="market-flag">🇪🇺</span>
+        <div>
+          <div class="section-label" style="margin-bottom:2px">Part 04</div>
+          <h3>歐洲市場</h3>
+        </div>
+      </div>
+      <span class="badge">被 GDPR / EU AI Act 重塑的雙速賽道</span>
+    </div>
+
+    <div class="callout">
+      <strong>2025.9.2</strong>——Notion 於<strong>法蘭克福啟用 EU Data Residency</strong>，同時開設倫敦、巴黎、慕尼黑辦公室，EMEA 員工 12 個月內翻倍。EU Data Residency 僅限 Enterprise plan，讓「合規友善部署」成為歐洲顧問的高價差異化。<br><br>
+      <strong>EU AI Act 2026.8 deployer 義務生效</strong>（罰款最高全球年營收 7%），催生「Notion + AI 治理」新顧問職類。
+    </div>
+
+    <div class="prose">
+      <strong>主要競爭者：</strong>德語區 Matthias Frank、Nocode.fit（DSGVO-konform）；法國 L'Agence Notion、Goua.la 等近 10 家；西班牙 Volcanic Internet 2025 年成為首位官方 Solutions Partner。<br><br>
+      <strong>主權替代品壓力：</strong>Anytype 已募資 $29.3M（Balderton）、等待名單 75,000 人；CLOUD Act 風險持續阻礙公部門採購。
+    </div>
+
+    <div class="quad-grid">
+      <div class="quad-card growing">
+        <div class="tag">📈 Growing</div>
+        <ul>
+          <li>EU Enterprise data residency 顧問</li>
+          <li>AI Act deployer 合規服務</li>
+          <li>EMEA 三城辦事處帶動 deal flow</li>
+        </ul>
+      </div>
+      <div class="quad-card declining">
+        <div class="tag">📉 Declining</div>
+        <ul>
+          <li>歐洲 SMB 流失至 ClickUp 或 Anytype</li>
+          <li>Notion AI 訓練疑慮壓制公部門</li>
+        </ul>
+      </div>
+      <div class="quad-card emerging">
+        <div class="tag">🌱 Emerging</div>
+        <ul>
+          <li>Notion + Sovereign 替代品混合架構</li>
+          <li>n8n（德國開源）+ Notion 自動化</li>
+          <li>法義西語 creator 訓練平台</li>
+        </ul>
+      </div>
+      <div class="quad-card abandon">
+        <div class="tag">🚫 Abandon</div>
+        <ul>
+          <li>「DACH only」純語言市場切片（已飽和）</li>
+          <li>僅做 GDPR 諮詢而不附 Notion 實作</li>
+          <li>Reddit/Discord 免費社群引流</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- 05 Asia -->
+<section>
+  <div class="container">
+    <div class="market-header">
+      <div class="row1">
+        <span class="market-flag">🌏</span>
+        <div>
+          <div class="section-label" style="margin-bottom:2px">Part 05</div>
+          <h3>亞洲市場</h3>
+        </div>
+      </div>
+      <span class="badge">全球最被低估的機會</span>
+    </div>
+
+    <div class="callout">
+      韓 11.98% + 日 10.86% = <strong>22.84%，超過美國 16.2%</strong>，但顧問供給最稀缺。<strong>日本僅 4 家認證機構、韓國公式컨설턴트僅 2 名</strong>——全球最不對稱的供需缺口。
+    </div>
+
+    <div class="sub-market">
+      <span class="flag">🇯🇵</span>
+      <h4>日本</h4>
+      <span class="badge">流量佔比 10.86%</span>
+    </div>
+    <div class="prose">
+      全國 4 家認證機構：NorthSand（全球第 1 家）、TEMP（累計 100+ 社支援）、ヒッドワークス、Nextmode（NTT 東日本 × Classmethod JV）。<br><br>
+      企業客戶含 <strong>Toyota、三菱重工、Suntory、GovTech 東京</strong>。核心護城河：<strong>稟議サポート + セキュリティチェックシート代行</strong>——日本式 B2B 採購是外國顧問難以跨越的天然壁壘。
+    </div>
+
+    <div class="sub-market">
+      <span class="flag">🇰🇷</span>
+      <h4>韓國</h4>
+      <span class="badge">流量佔比 11.98%・全球第二</span>
+    </div>
+    <div class="prose">
+      全球第二大流量市場，但공식컨설턴트僅 2 名。Notion Korea 員工 2025 年擴至 20+；<strong>韓國 marketplace 模板累計複製 ~2,000 萬次</strong>。<br><br>
+      <strong>HyperCLOVA X 消費者版 2026.4.9 終止轉 B2B</strong>——釋放本土 AI 知識管理真空，Notion AI 有空間填補。
+    </div>
+
+    <div class="sub-market">
+      <span class="flag">🇹🇼</span>
+      <h4>台灣</h4>
+      <span class="badge">成熟生態・Threads 雙引擎</span>
+    </div>
+    <div class="prose">
+      以<strong>雷蒙生態（侯智薰）</strong>為核心：Hahow《Notion 實戰課程》多年穩居精選頭號、線上訓練營已辦至第十屆（NTD 9,800/屆）；電腦玩物 Esor 部落格教學奠基；老 K 以 Threads/IG 經營一人公司顧問定位。<br><br>
+      台灣 Threads 使用率全球前列，Dcard 財務模板單篇 184 reactions / 125 comments。
+    </div>
+
+    <div class="quad-grid">
+      <div class="quad-card growing">
+        <div class="tag">📈 Growing</div>
+        <ul>
+          <li>日本 enterprise 認證顧問（4→10 家以上）</li>
+          <li>韓國 Notion AI Agent 填補 HyperCLOVA X 真空</li>
+          <li>新加坡 APAC 樞紐拉動大企業</li>
+          <li>台灣 Hahow 訓練營 + Threads 雙引擎</li>
+        </ul>
+      </div>
+      <div class="quad-card declining">
+        <div class="tag">📉 Declining</div>
+        <ul>
+          <li>韓國純個人 templates 紅海化</li>
+          <li>台灣一次性中文模板</li>
+          <li>中國依賴翻牆的諮詢</li>
+        </ul>
+      </div>
+      <div class="quad-card emerging">
+        <div class="tag">🌱 Emerging</div>
+        <ul>
+          <li>日本「Notion × GAS 自動化」</li>
+          <li>韓國跨企業協作顧問</li>
+          <li>中文 DeepSeek + Notion 付費課程</li>
+        </ul>
+      </div>
+      <div class="quad-card abandon">
+        <div class="tag">🚫 Abandon</div>
+        <ul>
+          <li>日本「Notion 何でもできる」一般書籍</li>
+          <li>台灣 PTT 文字流量推廣</li>
+          <li>香港小型個人顧問（市場太小）</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- 06 AI -->
+<section>
+  <div class="container">
+    <div class="section-label">Part 06</div>
+    <h2>AI 衝擊：四個顛覆向量</h2>
+    <p class="section-sub">同時作用於整個 Notion 顧問業的結構性威脅</p>
+
+    <div class="stat-grid">
+      <div class="stat-card"><div class="val">2025.9.18</div><div class="label">Notion 3.0 推出自主 AI Agents</div></div>
+      <div class="stat-card"><div class="val">90%</div><div class="label">Ramp 員工每月使用 Notion AI</div></div>
+      <div class="stat-card"><div class="val">+109%</div><div class="label">Upwork AI-explicit skills YoY</div></div>
+      <div class="stat-card"><div class="val">+40%</div><div class="label">AI-enabled freelancer 時薪溢價</div></div>
+    </div>
+
+    <div class="prose">
+      <strong>Notion AI Agents（2026.5.4 計費，$10/1,000 credits）</strong>：可跨資料庫自主執行任務，直接消滅「幫客戶建 CRM with rollups」這類 80% 基礎顧問工作。<br><br>
+      <strong>外部 AI 取代：</strong>ChatGPT Company Knowledge 連接 Notion/Google Drive；Claude 官方 Notion Connector 原生讀寫；McKinsey 部署 12,000 個 AI agents、<strong>25% 專案改採 outcome-based fees</strong>。
+    </div>
+
+    <div class="callout">
+      <strong>結論：</strong>純 Notion 知識已無溢價，AI + Notion 才有溢價。必須將自己重新定位為「<strong>AI Agent 設計師 + Notion 系統架構師</strong>」。
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- 07 Conclusion -->
+<section>
+  <div class="container">
+    <div class="section-label">結論</div>
+    <h2>三個非共識判斷</h2>
+    <p class="section-sub">可執行的策略方向，2026 年適用</p>
+
+    <div class="conclusion-grid">
+      <div class="conclusion-card">
+        <div class="num">01</div>
+        <h4>「成為 Certified Solutions Partner」是 2026 年最高 ROI 的單一行動</h4>
+        <p>全球僅 <strong>158 家認證合作夥伴</strong>，但 Notion ARR 以 +66%/年衝刺、銷售團隊兩年連續翻倍——<strong>認證即是 deal flow 的合法管道</strong>。日本、韓國、台灣、東南亞認證顧問供給仍個位數至兩位數，是全球最被低估的進入點。</p>
+      </div>
+      <div class="conclusion-card">
+        <div class="num">02</div>
+        <h4>「純美學 Notion 顧問」已死，「Notion + AI Agent + 垂直行業」剛開始</h4>
+        <p>泛用模板與美學頁面已被 AI 與 Marketplace 30,000+ 免費模板擠壓至零利潤。但<strong>垂直 OS（每員工年省 $28,500）、Ramp Custom Agents、HIPAA-compliant clinic</strong>——垂直 OS 才是 2026 年的高價地帶。</p>
+      </div>
+      <div class="conclusion-card">
+        <div class="num">03</div>
+        <h4>地理選擇本身就是 alpha</h4>
+        <p>美國已進入紅海，獲客成本飆升。<strong>歐洲被 EU AI Act 洗牌、日本有稟議護城河、韓國 2 名顧問卻佔全球 12% 流量、新加坡 APAC 總部 2025 才建制</strong>。<br><br>
+        歐亞才是未來三年真正的 alpha 來源。市場仍在等待有人把 Notion 從「酷的工作空間」翻譯成「企業可採購的 KM 系統」——這個翻譯工程，正是接下來三年的真正主戰場。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="footer">
+  Notion 顧問業全球三大市場掃描報告 · 2025–2026<br>整合 200+ 條一手資料
+</div>
+
+</body>
+</html>
