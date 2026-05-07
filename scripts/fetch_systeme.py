@@ -79,15 +79,18 @@ def call_tool(session_id: str, tool: str, arguments: dict, req_id: int) -> dict:
 
 # ── 工具函式 ──────────────────────────────────────────────────────────────────
 
-def extract_utm_content(source_url: Optional[str]) -> str:
+def extract_utm_fields(source_url: Optional[str]) -> dict:
+    result = {"utm_source": "", "utm_medium": "", "utm_content": "", "utm_campaign": "", "utm_term": ""}
     if not source_url:
-        return ""
+        return result
     try:
         qs = parse_qs(urlparse(source_url).query)
-        values = qs.get("utm_content", [])
-        return values[0] if values else ""
+        for key in result:
+            values = qs.get(key, [])
+            result[key] = values[0] if values else ""
     except Exception:
-        return ""
+        pass
+    return result
 
 
 # ── 核心抓取 ──────────────────────────────────────────────────────────────────
@@ -181,9 +184,14 @@ def extract_leads(contacts: list) -> list:
         email = c.get("email", "").strip().lower()
         if not email:
             continue
+        utm = extract_utm_fields(c.get("sourceURL"))
         leads.append({
             "email": email,
-            "utm_content": extract_utm_content(c.get("sourceURL")),
+            "utm_source": utm["utm_source"],
+            "utm_medium": utm["utm_medium"],
+            "utm_content": utm["utm_content"],
+            "utm_campaign": utm["utm_campaign"],
+            "utm_term": utm["utm_term"],
             "registered_at": c.get("registeredAt") or c.get("createdAt", ""),
             "systeme_id": c.get("id"),
         })
@@ -196,12 +204,16 @@ def save_outputs(leads: list, json_path: str):
         json.dump(leads, f, ensure_ascii=False, indent=2)
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(
-            f, fieldnames=["电子邮件", "utm_content", "Date Registered", "systeme_id"])
+            f, fieldnames=["电子邮件", "utm_source", "utm_medium", "utm_content", "utm_campaign", "utm_term", "Date Registered", "systeme_id"])
         writer.writeheader()
         for lead in leads:
             writer.writerow({
                 "电子邮件": lead["email"],
+                "utm_source": lead["utm_source"],
+                "utm_medium": lead["utm_medium"],
                 "utm_content": lead["utm_content"],
+                "utm_campaign": lead["utm_campaign"],
+                "utm_term": lead["utm_term"],
                 "Date Registered": lead["registered_at"],
                 "systeme_id": lead["systeme_id"],
             })
@@ -241,13 +253,14 @@ def main():
     leads = extract_leads(contacts)
     save_outputs(leads, output_path)
 
-    utm_counts: dict = {}
-    for lead in leads:
-        utm = lead["utm_content"] or "(無 utm)"
-        utm_counts[utm] = utm_counts.get(utm, 0) + 1
-    print(f"\nutm_content 分布（前 20）：")
-    for utm, count in sorted(utm_counts.items(), key=lambda x: -x[1])[:20]:
-        print(f"  {utm}: {count} 筆")
+    from collections import Counter
+    src_counts = Counter(lead["utm_source"] or "(空)" for lead in leads)
+    print(f"\nutm_source 分布：")
+    for src, count in src_counts.most_common():
+        print(f"  {src}: {count} 筆")
+    meta_with_id = sum(1 for l in leads if l["utm_content"].isdigit())
+    meta_no_id = sum(1 for l in leads if l["utm_source"] == "meta" and not l["utm_content"].isdigit())
+    print(f"\nMeta 廣告歸因：有廣告ID {meta_with_id} 筆 / 有meta標籤無ID {meta_no_id} 筆")
 
     print(json.dumps({
         "mode": args.mode,

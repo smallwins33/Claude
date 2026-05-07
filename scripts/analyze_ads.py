@@ -225,6 +225,7 @@ ad_spend_map = {a['廣告編號']: sf(a.get('花費金額 (USD)')) for a in ads_
 
 cat_colors = {
     "✅ Meta廣告（可追蹤）": ("D4EDDA","1E7E34"),
+    "✅ Meta流量（無廣告ID）": ("C8F0D8","1A6B2E"),
     "🔗 Link in Bio":        ("FFF3CD","856404"),
     "❓ 無廣告編號（其他）":  ("FEF9E7","5A4E00"),
     "❌ 不在Systeme名單":     ("F8D7DA","721C24"),
@@ -234,12 +235,15 @@ for c in brand_consults:
     e   = c['email']
     s   = email_to_s.get(e)
     utm = s.get('utm_content','').strip() if s else None
+    src = s.get('utm_source','').strip() if s else None
     ad_n  = ad_name_map.get(utm,'') if utm else ''
     ad_sp = ad_spend_map.get(utm) if utm else None
     if not s:
         cat = "❌ 不在Systeme名單"
     elif utm and utm != 'link_in_bio' and ad_n:
         cat = "✅ Meta廣告（可追蹤）"
+    elif src == 'meta':
+        cat = "✅ Meta流量（無廣告ID）"
     elif utm == 'link_in_bio':
         cat = "🔗 Link in Bio"
     else:
@@ -306,7 +310,7 @@ total_spend      = sum(r['spend_full'] or 0 for r in rows)
 total_meta_leads = sum(r['leads_full'] for r in rows)
 total_sys_leads  = len(systeme)
 total_consults   = len(brand_consults)
-trackable_consults = cat_counts.get("✅ Meta廣告（可追蹤）", 0)
+trackable_consults = cat_counts.get("✅ Meta廣告（可追蹤）", 0) + cat_counts.get("✅ Meta流量（無廣告ID）", 0)
 
 wb = Workbook()
 
@@ -335,8 +339,12 @@ overall_cpql = total_spend / trackable_consults if trackable_consults else None
 total_noshow = sum(1 for c in brand_consults if c.get('status') == '未出席')
 attended_consults = trackable_consults - sum(
     1 for c in brand_consults if c.get('status') == '未出席'
-    and email_to_s.get(c['email']) and email_to_s[c['email']].get('utm_content','').strip()
-    and email_to_s[c['email']].get('utm_content','').strip() != 'link_in_bio'
+    and email_to_s.get(c['email'])
+    and (
+        (email_to_s[c['email']].get('utm_content','').strip()
+         and email_to_s[c['email']].get('utm_content','').strip() != 'link_in_bio')
+        or email_to_s[c['email']].get('utm_source','').strip() == 'meta'
+    )
 )
 overall_cpql_attended = total_spend / attended_consults if attended_consults > 0 else None
 metrics = [
